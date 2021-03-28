@@ -1,4 +1,4 @@
-me: Update Referee System on Lab Computer Automatically
+name: Update QueueUp Bot
 on:
   push:
     branches:
