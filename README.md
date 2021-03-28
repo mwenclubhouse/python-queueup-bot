@@ -1,2 +1,4 @@
-# QueueUp-Bot
-Discord Bot Used for ECE 264 Srping 2021
+## Adding the Bot To Server
+https://discord.com/oauth2/authorize?client_id=814942189981138944&scope=bot&permissions=8
+
+old permissions: 3775396944
