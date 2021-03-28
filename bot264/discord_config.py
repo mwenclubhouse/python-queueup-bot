@@ -7,7 +7,7 @@ from .commands import UserCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands
 
-if os.getenv("PRODUCTION", None) == "1":
+if os.getenv("PRODUCTION", None) != "1":
     from dotenv import load_dotenv
 
     load_dotenv()
