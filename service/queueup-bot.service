@@ -10,7 +10,7 @@ WorkingDirectory=%h
 Type = simple
 StandardOutput=syslog
 StandardError=syslog
-ExecStart=queueup-bot
+ExecStart=/bin/bash -c "PATH=~/.local/bin:$PATH queueup-bot"
 
 Restart=on-failure
 RestartSec=5
