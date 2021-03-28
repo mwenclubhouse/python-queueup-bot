@@ -1,2 +1,3 @@
-# QueueUp-Bot
-Discord Bot Used for ECE 264 Srping 2021
+#QueueUp Discord Bot
+Basically QueueUp Live But on Discord
+
