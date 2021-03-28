@@ -6,13 +6,7 @@ name = "pypi"
 [packages]
 discord = "*"
 python-dotenv = "*"
-firebase-admin = "*"
-prettytable = "*"
-todoist-python = "*"
 install = "*"
-google-api-python-client = "*"
-google-auth-httplib2 = "*"
-google-auth-oauthlib = "*"
 pytest = "*"
 pytz = "*"
 

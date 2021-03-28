@@ -1,0 +1,16 @@
+[Unit] 
+Description=Python Script For QueueUp Discord Bot
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+Environment=PRODUCTION=1
+EnvironmentFile=%h/environment/queueup.environment
+WorkingDirectory=%h
+
+Type = simple
+StandardOutput=syslog
+StandardError=syslog
+ExecStart=queueup-bot
+
+Restart=on-failure
+RestartSec=5
