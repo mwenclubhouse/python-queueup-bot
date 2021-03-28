@@ -30,7 +30,7 @@ queueup-bot
 ```
 
 ## Basic setup [Production]
-```bash
+```.
 Home Directory
 │
 ├─── environments 
