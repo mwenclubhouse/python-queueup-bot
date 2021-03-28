@@ -1,14 +1,17 @@
 import os
 
 import discord
-from dotenv import load_dotenv
 
 from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper
 from .commands import UserCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands
 
-load_dotenv()
+if os.getenv("PRODUCTION", None) != "1":
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
 client = discord.Client()
 init_discord_wrapper()
 DiscordWrapper.client = client
