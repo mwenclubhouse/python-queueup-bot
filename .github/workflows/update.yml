@@ -18,4 +18,4 @@ on:
                           password: ${{secrets.PASSWORD }}
                             port: ${{ secrets.PORT }}
                               script: |
-                                ./referee/setup.sh
+                                ./scripts/queueup.sh
