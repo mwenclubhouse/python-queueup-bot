@@ -1,3 +1,4 @@
+import json
 import os
 
 import discord
@@ -12,7 +13,7 @@ if os.getenv("PRODUCTION", None) != "1":
 
     load_dotenv()
 
-client = discord.Client()
+client: discord.Client = discord.Client()
 init_discord_wrapper()
 DiscordWrapper.client = client
 
@@ -58,7 +59,7 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
         return
 
     message: discord.message.Message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-    author: discord.member.Member = message.author
+    author: discord.User = message.author
     is_admin = DiscordWrapper.is_admin(payload.member.roles)
 
     run_command = False
@@ -86,6 +87,16 @@ async def on_message(message: discord.message.Message):
         if response.done:
             await response.send_message(message)
             return
+
+
+@client.event
+async def on_member_join(member):
+    print(member)
+
+
+@client.event
+async def on_member_remove(member):
+    print(member)
 
 
 def run_discord():
