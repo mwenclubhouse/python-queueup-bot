@@ -72,7 +72,7 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
     waiting_room_guid.fetch_members()
     student = waiting_room_guid.get_member(author.id)
     # await student.move_to(dest_voice_channel) # Move them to TA
-    await student.move_to(None)
+    await student.move_to(None) # Disconnects them
 
 
     is_admin = DiscordWrapper.is_admin(payload.member.roles)
