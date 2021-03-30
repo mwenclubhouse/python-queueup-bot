@@ -11,9 +11,12 @@ def get_int_env(name):
 
 
 def init_discord_wrapper():
-    # Channel Settings
+    # Text Channel Settings
     DiscordWrapper.queue_channel = get_int_env('QUEUE_CHANNEL_ID')
     DiscordWrapper.history_channel = get_int_env('HISTORY_CHANNEL_ID')
+
+    # Voice Channel Settings
+    DiscordWrapper.waiting_room = get_int_env("WAITING_ROOM")
 
     # Role IDS
     DiscordWrapper.uta_role_id = get_int_env('UTA_ROLE_ID')
@@ -26,9 +29,41 @@ class DiscordWrapper:
     queue_channel = None
     history_channel = None
 
+    waiting_room = None
+
     uta_role_id = None
     gta_role_id = None
     prof_role_id = None
+
+    @staticmethod
+    def get_waiting_room() -> discord.channel.VoiceChannel or None:
+        if DiscordWrapper.waiting_room != 0:
+            return DiscordWrapper.client.get_channel(DiscordWrapper.waiting_room)
+        return None
+
+    @staticmethod
+    async def move_user_to_office_hours(user_id: discord.member.Member, ta_voice_state):
+        if ta_voice_state is None:
+            return False
+        dest_voice_channel: discord.channel.VoiceChannel = ta_voice_state.channel
+        waiting_room: discord.channel.VoiceChannel = DiscordWrapper.get_waiting_room()
+        if None in [waiting_room, user_id.voice]:
+            return False
+        await user_id.move_to(dest_voice_channel)
+        return True
+
+    @staticmethod
+    async def move_user_to_waiting_room(user_id):
+        waiting_room: discord.channel.VoiceChannel = DiscordWrapper.get_waiting_room()
+        if None in [waiting_room, user_id.voice]:
+            return False
+        await user_id.move_to(waiting_room)
+        return True
+
+    @staticmethod
+    async def disconnect_user(user_id):
+        if user_id.voice is not None:
+            await user_id.move_to(None)
 
     @staticmethod
     def is_emoji_channels(channel_id):

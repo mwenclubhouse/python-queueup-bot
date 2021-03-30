@@ -1,3 +1,4 @@
+import json
 import os
 
 import discord
@@ -12,7 +13,9 @@ if os.getenv("PRODUCTION", None) != "1":
 
     load_dotenv()
 
-client = discord.Client()
+intents = discord.Intents.default()
+intents.members = True
+client: discord.Client = discord.Client(intents=intents)
 init_discord_wrapper()
 DiscordWrapper.client = client
 
@@ -58,9 +61,9 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
         return
 
     message: discord.message.Message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-    author: discord.member.Member = message.author
-    is_admin = DiscordWrapper.is_admin(payload.member.roles)
+    author: discord.User = message.author
 
+    is_admin = DiscordWrapper.is_admin(payload.member.roles)
     run_command = False
     if is_admin or payload.user_id == author.id:
         response = UserResponse()
@@ -74,11 +77,11 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
 @client.event
 async def on_message(message: discord.message.Message):
     response: UserResponse = UserResponse()
+    if message.author == client.user:
+        return
     if DiscordWrapper.queue_channel == message.channel.id:
         response.set_options("waiting")
         await response.send_message(message)
-        return
-    if message.author == client.user:
         return
     list_type = [handle_direct_message, handle_scheduler_message]
     for i in list_type:
