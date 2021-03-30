@@ -91,15 +91,5 @@ async def on_message(message: discord.message.Message):
             return
 
 
-@client.event
-async def on_member_join(member):
-    print(member)
-
-
-@client.event
-async def on_member_remove(member):
-    print(member)
-
-
 def run_discord():
     client.run(os.getenv('TOKEN'))
