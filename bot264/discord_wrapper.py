@@ -6,7 +6,7 @@ from bot264.common import create_simple_message
 
 
 def get_int_env(name):
-    env_str = os.getenv(name, 0)
+    env_str = os.getenv(name)
     return 0 if env_str in [None, ''] else int(env_str)
 
 
