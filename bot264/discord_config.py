@@ -63,20 +63,7 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
     message: discord.message.Message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
     author: discord.User = message.author
 
-    waiting_room_id = int(os.getenv("WAITING_ROOM", "0"))
-    waiting_room: discord.channel.VoiceChannel = client.get_channel(waiting_room_id)
-    dest_voice_state: discord.VoiceState = payload.member.voice
-    dest_voice_channel: discord.channel.VoiceChannel = dest_voice_state.channel \
-        if dest_voice_state is not None else None
-    waiting_room_guid: discord.guild.Guild = waiting_room.guild
-    waiting_room_guid.fetch_members()
-    student = waiting_room_guid.get_member(author.id)
-    # await student.move_to(dest_voice_channel) # Move them to TA
-    await student.move_to(None) # Disconnects them
-
-
     is_admin = DiscordWrapper.is_admin(payload.member.roles)
-
     run_command = False
     if is_admin or payload.user_id == author.id:
         response = UserResponse()
@@ -90,11 +77,11 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
 @client.event
 async def on_message(message: discord.message.Message):
     response: UserResponse = UserResponse()
+    if message.author == client.user:
+        return
     if DiscordWrapper.queue_channel == message.channel.id:
         response.set_options("waiting")
         await response.send_message(message)
-        return
-    if message.author == client.user:
         return
     list_type = [handle_direct_message, handle_scheduler_message]
     for i in list_type:
