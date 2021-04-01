@@ -43,11 +43,11 @@ class UserResponse:
                         await self.send_message(message)
                 elif emoji == "⌛":
                     # Kick out anyone in their voice channel rn btw.
-                    is_successful = await DiscordWrapper.move_user_to_waiting_room(message.author)
-                    if is_successful:
-                        self.set_options()
-                        await clear_emojis(message)
-                        await self.send_message(message)
+                    is_successful = True
+                    await DiscordWrapper.move_user_to_waiting_room(message.author)
+                    self.set_options()
+                    await clear_emojis(message)
+                    await self.send_message(message)
                 elif emoji == "✅":
                     # Kick out anyone in their voice channel rn btw.
                     is_successful = True
