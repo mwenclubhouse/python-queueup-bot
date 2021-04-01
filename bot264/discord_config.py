@@ -77,7 +77,8 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
 @client.event
 async def on_message(message: discord.message.Message):
     response: UserResponse = UserResponse()
-    if message.author == client.user or DiscordWrapper.is_admin(message.author.roles):
+    is_admin = type(message.author.roles) == discord.member.Member and DiscordWrapper.is_admin(message.author.roles)
+    if message.author == client.user or is_admin:
         return
     if DiscordWrapper.queue_channel == message.channel.id:
         response.set_options("waiting")
