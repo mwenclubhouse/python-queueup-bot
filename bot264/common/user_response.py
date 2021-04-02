@@ -65,9 +65,9 @@ class UserResponse:
         return True
 
     def set_options(self, state=None):
-        waiting_emoji = ["👀", "❌"]
-        helping_emoji = ["✅", "⌛", "❌"]
-        history_emoji = ["🔄", "❌"]
+        waiting_emoji = ["👀"]
+        helping_emoji = ["✅", "⌛"]
+        history_emoji = ["🔄"]
         if not self.done:
             if state == "helping":
                 self.emoji = helping_emoji
