@@ -1,12 +1,14 @@
+import asyncio
 import json
 import os
 
 import discord
+from discord.iterators import HistoryIterator
 
 from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper
 from .commands import UserCommand
 from .common.user_response import UserResponse
-from .common.utils import iterate_commands
+from .common.utils import iterate_commands, create_simple_message
 
 if os.getenv("PRODUCTION", None) != "1":
     from dotenv import load_dotenv
@@ -78,18 +80,17 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
 async def on_message(message: discord.message.Message):
     response: UserResponse = UserResponse()
     is_admin = type(message.author.roles) == discord.member.Member and DiscordWrapper.is_admin(message.author.roles)
-    if message.author == client.user or is_admin:
-        return
-    if DiscordWrapper.queue_channel == message.channel.id:
-        response.set_options("waiting")
+    if message.author != client.user:
+        if not is_admin:
+            new_message = create_simple_message(message.author.display_name, message.content)
+            new_message.add_field(name='Priority', value=5, inline=False)
+            response.add_response(new_message)
+            await message.delete()
         await response.send_message(message)
-        return
-    list_type = [handle_direct_message, handle_scheduler_message]
-    for i in list_type:
-        await i(message, response)
-        if response.done:
+    else:
+        if DiscordWrapper.queue_channel == message.channel.id:
+            response.set_options("waiting")
             await response.send_message(message)
-            return
 
 
 def run_discord():
