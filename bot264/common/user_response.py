@@ -66,13 +66,19 @@ class UserResponse:
 
     def set_options(self, state=None):
         waiting_emoji = ["✋"]
+        done_emoji = ["✅"]
         helping_emoji = ["✅", "⌛"]
         history_emoji = ["🔄"]
+        failure_emoji = ["❌"]
         if not self.done:
             if state == "helping":
                 self.emoji = helping_emoji
             elif state == "history":
                 self.emoji = history_emoji
+            elif state == 'done':
+                self.emoji = done_emoji
+            elif state == 'failure':
+                self.emoji = failure_emoji
             else:
                 self.emoji = waiting_emoji
 
