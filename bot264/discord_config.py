@@ -4,7 +4,7 @@ import discord
 
 from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper
 from .commands import UserCommand
-from .commands.lock_queue_command import LockQueueCommand, UnLockQueueCommand, StateQueueCommand
+from .commands.lock_queue_command import LockQueueCommand, UnLockQueueCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands
 
