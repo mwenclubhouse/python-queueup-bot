@@ -34,7 +34,7 @@ class UserResponse:
         elif is_admin:
             is_successful = False
             if ta_voice_channel is not None:
-                if emoji == "👀":
+                if emoji == "✋":
                     # Add user into voice channel
                     is_successful = await DiscordWrapper.move_user_to_office_hours(message.author, ta_voice_channel)
                     if is_successful:
@@ -65,7 +65,7 @@ class UserResponse:
         return True
 
     def set_options(self, state=None):
-        waiting_emoji = ["👀"]
+        waiting_emoji = ["✋"]
         helping_emoji = ["✅", "⌛"]
         history_emoji = ["🔄"]
         if not self.done:
