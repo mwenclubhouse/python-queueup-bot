@@ -1,12 +1,11 @@
 import os
-from typing import List
 import discord
 
 from bot264.common import create_simple_message
 
 
 def get_int_env(name):
-    env_str = os.getenv(name, 0)
+    env_str = os.getenv(name)
     return 0 if env_str in [None, ''] else int(env_str)
 
 
@@ -15,9 +14,6 @@ def init_discord_wrapper():
     DiscordWrapper.queue_channel = get_int_env('QUEUE_CHANNEL_ID')
     DiscordWrapper.history_channel = get_int_env('HISTORY_CHANNEL_ID')
     DiscordWrapper.bot_channel = get_int_env('BOT_CHANNEL_ID')
-
-    # Voice Channel Settings
-    DiscordWrapper.waiting_room = get_int_env("WAITING_ROOM")
 
     # Voice Channel Settings
     DiscordWrapper.waiting_room = get_int_env("WAITING_ROOM")
@@ -33,8 +29,6 @@ class DiscordWrapper:
     queue_channel = None
     history_channel = None
     bot_channel = None
-
-    waiting_room = None
 
     waiting_room = None
 
