@@ -2,9 +2,8 @@ import os
 
 import discord
 
-from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper
-from .commands import UserCommand
-from .commands.lock_queue_command import LockQueueCommand, UnLockQueueCommand
+from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper, process_rooms
+from .commands import UserCommand, LockQueueCommand, UnLockQueueCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands
 
@@ -17,6 +16,7 @@ intents = discord.Intents.default()
 intents.members = True
 client: discord.Client = discord.Client(intents=intents)
 init_discord_wrapper()
+process_rooms()
 DiscordWrapper.client = client
 
 
@@ -64,7 +64,6 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
 
     message: discord.message.Message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
     author = message.author
-
     is_admin = DiscordWrapper.is_admin(payload.member)
     run_command = False
     if is_admin or payload.user_id == author.id:

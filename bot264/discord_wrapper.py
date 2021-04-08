@@ -1,5 +1,5 @@
+import json
 import os
-from typing import List
 import discord
 
 from bot264.common import create_simple_message
@@ -8,6 +8,32 @@ from bot264.common import create_simple_message
 def get_int_env(name):
     env_str = os.getenv(name)
     return 0 if env_str in [None, ''] else int(env_str)
+
+
+def process_rooms():
+    rooms = os.getenv("ROOMS", "{}")
+    raw_rooms_dict = json.loads(rooms)
+    Permissions.rooms = {int(k): int(v) for k, v in raw_rooms_dict.items() if k and v}
+
+
+class Permissions:
+    rooms = None
+
+    @staticmethod
+    async def set_access_to_text_channel(student, ta_voice_channel, state):
+        client: discord.Client = DiscordWrapper.client
+        ta_channel_id = ta_voice_channel.channel.id
+        if ta_channel_id in Permissions.rooms:
+            target_channel: discord.TextChannel = client.get_channel(Permissions.rooms[ta_channel_id])
+            await target_channel.purge()
+            if state:
+                message_to_student = """
+                You can have a 1 on 1 conversation here with your TA. 
+                Hopefully, this session is helpful.
+                """
+                discord_message = create_simple_message("Hey There {}".format(student.display_name), message_to_student)
+                await target_channel.send(embed=discord_message)
+            await target_channel.set_permissions(student, read_messages=state, send_messages=state)
 
 
 def init_discord_wrapper():
@@ -58,10 +84,12 @@ class DiscordWrapper:
         if None in [waiting_room, user_id.voice]:
             return False
         await user_id.move_to(dest_voice_channel)
+        await Permissions.set_access_to_text_channel(user_id, ta_voice_state, True)
         return True
 
     @staticmethod
-    async def move_user_to_waiting_room(user_id):
+    async def move_user_to_waiting_room(user_id, ta_voice_state):
+        await Permissions.set_access_to_text_channel(user_id, ta_voice_state, False)
         waiting_room: discord.channel.VoiceChannel = DiscordWrapper.get_waiting_room()
         if None in [waiting_room, user_id.voice]:
             return False
@@ -69,7 +97,8 @@ class DiscordWrapper:
         return True
 
     @staticmethod
-    async def disconnect_user(user_id):
+    async def disconnect_user(user_id, ta_voice_state):
+        await Permissions.set_access_to_text_channel(user_id, ta_voice_state, False)
         if user_id.voice is not None:
             await user_id.move_to(None)
 
