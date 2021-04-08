@@ -2,7 +2,7 @@ import os
 
 import discord
 
-from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper
+from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper, process_rooms
 from .commands import UserCommand, LockQueueCommand, UnLockQueueCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands
@@ -16,6 +16,7 @@ intents = discord.Intents.default()
 intents.members = True
 client: discord.Client = discord.Client(intents=intents)
 init_discord_wrapper()
+process_rooms()
 DiscordWrapper.client = client
 
 

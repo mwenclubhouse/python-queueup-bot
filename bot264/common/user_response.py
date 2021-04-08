@@ -1,5 +1,4 @@
 import discord
-
 from bot264.discord_wrapper import DiscordWrapper
 
 
@@ -27,16 +26,16 @@ class UserResponse:
         return self.response[-1]
 
     async def run_emoji_command(self, emoji, message: discord.message.Message,
-                                ta_voice_channel: discord.member.VoiceState, is_admin=False):
+                                ta_voice_state: discord.member.VoiceState, is_admin=False):
         if emoji == "❌":
-            await DiscordWrapper.disconnect_user(message.author)
+            await DiscordWrapper.disconnect_user(message.author, ta_voice_state)
             await message.delete()
         elif is_admin:
             is_successful = False
-            if ta_voice_channel is not None:
+            if ta_voice_state is not None:
                 if emoji == "✋":
                     # Add user into voice channel
-                    is_successful = await DiscordWrapper.move_user_to_office_hours(message.author, ta_voice_channel)
+                    is_successful = await DiscordWrapper.move_user_to_office_hours(message.author, ta_voice_state)
                     if is_successful:
                         self.set_options("helping")
                         await clear_emojis(message)
@@ -44,14 +43,14 @@ class UserResponse:
                 elif emoji == "⌛":
                     # Kick out anyone in their voice channel rn btw.
                     is_successful = True
-                    await DiscordWrapper.move_user_to_waiting_room(message.author)
+                    await DiscordWrapper.move_user_to_waiting_room(message.author, ta_voice_state)
                     self.set_options()
                     await clear_emojis(message)
                     await self.send_message(message)
                 elif emoji == "✅":
                     # Kick out anyone in their voice channel rn btw.
                     is_successful = True
-                    await DiscordWrapper.disconnect_user(message.author)
+                    await DiscordWrapper.disconnect_user(message.author, ta_voice_state)
                     await DiscordWrapper.add_history(message)
                     await message.delete()
                 return is_successful
