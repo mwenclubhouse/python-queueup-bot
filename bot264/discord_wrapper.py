@@ -14,6 +14,10 @@ def init_discord_wrapper():
     # Text Channel Settings
     DiscordWrapper.queue_channel = get_int_env('QUEUE_CHANNEL_ID')
     DiscordWrapper.history_channel = get_int_env('HISTORY_CHANNEL_ID')
+    DiscordWrapper.bot_channel = get_int_env('BOT_CHANNEL_ID')
+
+    # Voice Channel Settings
+    DiscordWrapper.waiting_room = get_int_env("WAITING_ROOM")
 
     # Voice Channel Settings
     DiscordWrapper.waiting_room = get_int_env("WAITING_ROOM")
@@ -28,12 +32,21 @@ class DiscordWrapper:
     client = None
     queue_channel = None
     history_channel = None
+    bot_channel = None
+
+    waiting_room = None
 
     waiting_room = None
 
     uta_role_id = None
     gta_role_id = None
     prof_role_id = None
+
+    @staticmethod
+    def get_queue_channel() -> discord.channel.TextChannel or None:
+        if DiscordWrapper.queue_channel != 0:
+            return DiscordWrapper.client.get_channel(DiscordWrapper.queue_channel)
+        return None
 
     @staticmethod
     def get_waiting_room() -> discord.channel.VoiceChannel or None:
@@ -70,9 +83,15 @@ class DiscordWrapper:
         return channel_id in [DiscordWrapper.queue_channel, DiscordWrapper.history_channel]
 
     @staticmethod
-    def is_admin(roles: List[discord.role.Role]):
-        for i in roles:
-            if i.id in [DiscordWrapper.uta_role_id, DiscordWrapper.gta_role_id, DiscordWrapper.prof_role_id]:
+    def is_admin_role(role: discord.role.Role):
+        return role.id in [DiscordWrapper.uta_role_id, DiscordWrapper.gta_role_id, DiscordWrapper.prof_role_id]
+
+    @staticmethod
+    def is_admin(member):
+        if type(member) != discord.member.Member:
+            return False
+        for i in member.roles:
+            if DiscordWrapper.is_admin_role(i):
                 return True
         return False
 

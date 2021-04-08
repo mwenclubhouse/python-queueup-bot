@@ -34,7 +34,7 @@ class UserResponse:
         elif is_admin:
             is_successful = False
             if ta_voice_channel is not None:
-                if emoji == "👀":
+                if emoji == "✋":
                     # Add user into voice channel
                     is_successful = await DiscordWrapper.move_user_to_office_hours(message.author, ta_voice_channel)
                     if is_successful:
@@ -43,11 +43,11 @@ class UserResponse:
                         await self.send_message(message)
                 elif emoji == "⌛":
                     # Kick out anyone in their voice channel rn btw.
-                    is_successful = await DiscordWrapper.move_user_to_waiting_room(message.author)
-                    if is_successful:
-                        self.set_options()
-                        await clear_emojis(message)
-                        await self.send_message(message)
+                    is_successful = True
+                    await DiscordWrapper.move_user_to_waiting_room(message.author)
+                    self.set_options()
+                    await clear_emojis(message)
+                    await self.send_message(message)
                 elif emoji == "✅":
                     # Kick out anyone in their voice channel rn btw.
                     is_successful = True
@@ -65,14 +65,20 @@ class UserResponse:
         return True
 
     def set_options(self, state=None):
-        waiting_emoji = ["👀", "❌"]
-        helping_emoji = ["✅", "⌛", "❌"]
-        history_emoji = ["🔄", "❌"]
+        waiting_emoji = ["✋"]
+        done_emoji = ["✅"]
+        helping_emoji = ["✅", "⌛"]
+        history_emoji = ["🔄"]
+        failure_emoji = ["❌"]
         if not self.done:
             if state == "helping":
                 self.emoji = helping_emoji
             elif state == "history":
                 self.emoji = history_emoji
+            elif state == 'done':
+                self.emoji = done_emoji
+            elif state == 'failure':
+                self.emoji = failure_emoji
             else:
                 self.emoji = waiting_emoji
 

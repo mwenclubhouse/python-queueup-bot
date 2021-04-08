@@ -1,10 +1,9 @@
-import json
 import os
 
 import discord
 
 from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper
-from .commands import UserCommand
+from .commands import UserCommand, LockQueueCommand, UnLockQueueCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands
 
@@ -24,13 +23,15 @@ def create_direct_command(content):
     return iterate_commands(content, [])
 
 
-def create_scheduler_command(content):
-    return iterate_commands(content, [])
+def create_bot_command(content):
+    return iterate_commands(content, [
+        ('$lock', LockQueueCommand), ('$unlock', UnLockQueueCommand)
+    ])
 
 
 async def run(obj, message, response):
     if obj is not None:
-        inst: UserCommand = obj(message.author, message.content, response)
+        inst: UserCommand = obj(message, response)
         await response.send_loading(message)
         await inst.run()
 
@@ -41,9 +42,9 @@ async def handle_direct_message(message, response: UserResponse):
         await run(create_direct_command(content), message, response)
 
 
-async def handle_scheduler_message(message, response: UserResponse):
+async def handle_bot_commands(message, response: UserResponse):
     if not response.done:
-        obj = create_scheduler_command(message.content)
+        obj = create_bot_command(message.content)
         await run(obj, message, response)
 
 
@@ -61,9 +62,8 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
         return
 
     message: discord.message.Message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-    author: discord.User = message.author
-
-    is_admin = DiscordWrapper.is_admin(payload.member.roles)
+    author = message.author
+    is_admin = DiscordWrapper.is_admin(payload.member)
     run_command = False
     if is_admin or payload.user_id == author.id:
         response = UserResponse()
@@ -77,18 +77,20 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
 @client.event
 async def on_message(message: discord.message.Message):
     response: UserResponse = UserResponse()
-    if message.author == client.user:
-        return
+    is_admin = DiscordWrapper.is_admin(message.author)
+
     if DiscordWrapper.queue_channel == message.channel.id:
-        response.set_options("waiting")
-        await response.send_message(message)
-        return
-    list_type = [handle_direct_message, handle_scheduler_message]
-    for i in list_type:
-        await i(message, response)
-        if response.done:
+        if message.author != client.user and not is_admin:
+            response.set_options("waiting")
             await response.send_message(message)
-            return
+    elif DiscordWrapper.bot_channel == message.channel.id:
+        if is_admin:
+            await handle_bot_commands(message, response)
+            if response.done:
+                await response.send_message(message)
+        else:
+            response.set_options("failure")
+            await response.send_message(message)
 
 
 @client.event
