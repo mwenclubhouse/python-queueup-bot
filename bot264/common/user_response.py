@@ -1,5 +1,4 @@
 import discord
-
 from bot264.discord_wrapper import DiscordWrapper
 
 
