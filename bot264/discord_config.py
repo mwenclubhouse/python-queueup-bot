@@ -118,5 +118,16 @@ async def on_message_delete(message):
         Db.remove_student(student_id)
 
 
+@client.event
+async def on_voice_state_update(member: discord.Member, before, after):
+    if after.channel is not None and after.channel.id == DiscordWrapper.waiting_room:
+        if not Db.is_student_in_queue(member.id):
+            dm_channel = await member.create_dm()
+            message = create_simple_message("Error", "Make sure to type your request inside THE QUEUE!!")
+            message.color = 15158332
+            await dm_channel.send(embed=message)
+            await member.move_to(None, reason="Need a Request Help First")
+
+
 def run_discord():
     client.run(os.getenv('TOKEN'))
