@@ -1,4 +1,6 @@
 import discord
+
+from bot264.common import create_simple_message
 from bot264.discord_wrapper import DiscordWrapper
 
 
