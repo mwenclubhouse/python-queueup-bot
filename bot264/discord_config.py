@@ -111,11 +111,9 @@ async def on_message(message: discord.message.Message):
 
 
 @client.event
-async def on_message_delete(message):
-    student_id = message.author.id
-    student = Db.get_student(student_id)
-    if student is not None and message.id == student[1]:
-        Db.remove_student(student_id)
+async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
+    if payload.channel_id == DiscordWrapper.queue_channel:
+        Db.remove_student(payload.message_id)
 
 
 @client.event

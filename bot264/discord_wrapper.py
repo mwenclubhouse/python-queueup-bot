@@ -90,10 +90,10 @@ class Db:
             connection.close()
 
     @staticmethod
-    def remove_student(student_id):
+    def remove_student(message_id):
         connection = get_db_connection()
         if connection:
-            command = "DELETE FROM queue WHERE author_id={};".format(student_id)
+            command = "DELETE FROM queue WHERE message_id={};".format(message_id)
             cursor = connection.cursor()
             cursor.execute(command)
             connection.commit()
