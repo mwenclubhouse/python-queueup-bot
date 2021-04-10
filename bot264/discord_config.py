@@ -2,10 +2,10 @@ import os
 
 import discord
 
-from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper, process_rooms
+from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper, process_rooms, create_db, Db
 from .commands import UserCommand, LockQueueCommand, UnLockQueueCommand
 from .common.user_response import UserResponse
-from .common.utils import iterate_commands
+from .common.utils import iterate_commands, create_simple_message
 
 if os.getenv("PRODUCTION", None) != "1":
     from dotenv import load_dotenv
@@ -17,6 +17,7 @@ intents.members = True
 client: discord.Client = discord.Client(intents=intents)
 init_discord_wrapper()
 process_rooms()
+create_db()
 DiscordWrapper.client = client
 
 
@@ -78,12 +79,27 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
 @client.event
 async def on_message(message: discord.message.Message):
     response: UserResponse = UserResponse()
-    is_admin = DiscordWrapper.is_admin(message.author)
+    student_member: discord.Member = message.author
+    is_admin = DiscordWrapper.is_admin(student_member)
 
     if DiscordWrapper.queue_channel == message.channel.id:
-        if message.author != client.user and not is_admin:
-            response.set_options("waiting")
-            await response.send_message(message)
+        if student_member != client.user and not is_admin:
+            if not Db.is_student_in_queue(student_member.id):
+                response.set_options("waiting")
+                Db.add_student(student_member.id, message.id)
+                await response.send_message(message)
+                title = f"Hello {student_member.display_name}"
+                context = f"Please enter Waiting Room Voice Channel"
+                color = 3066993
+            else:
+                title = f"I'm sorry {student_member.display_name}"
+                context = f"You are only allowed 1 ticket at a time."
+                color = 15158332
+                await message.delete()
+            new_message = create_simple_message(title, context)
+            new_message.color = color
+            dm_channel = await student_member.create_dm()
+            await dm_channel.send(embed=new_message)
     elif DiscordWrapper.bot_channel == message.channel.id:
         if is_admin:
             await handle_bot_commands(message, response)
@@ -92,6 +108,14 @@ async def on_message(message: discord.message.Message):
         else:
             response.set_options("failure")
             await response.send_message(message)
+
+
+@client.event
+async def on_message_delete(message):
+    student_id = message.author.id
+    student = Db.get_student(student_id)
+    if student is not None and message.id == student[1]:
+        Db.remove_student(student_id)
 
 
 def run_discord():

@@ -1,5 +1,7 @@
 import json
 import os
+import sqlite3
+
 import discord
 
 from bot264.common import create_simple_message
@@ -34,6 +36,69 @@ class Permissions:
                 discord_message = create_simple_message("Hey There {}".format(student.display_name), message_to_student)
                 await target_channel.send(embed=discord_message)
             await target_channel.set_permissions(student, read_messages=state, send_messages=state)
+
+
+def get_db_connection():
+    file_location = Db.database_file_location
+    if file_location is not None:
+        return sqlite3.connect(file_location)
+    return None
+
+
+def create_db():
+    Db.database_file_location = os.getenv('DATABASE', None)
+    connection = get_db_connection()
+    if connection:
+        command = """CREATE TABLE IF NOT EXISTS queue (author_id integer PRIMARY KEY, message_id integer NOT NULL);"""
+        cursor = connection.cursor()
+        cursor.execute(command)
+        cursor.close()
+        connection.close()
+
+
+class Db:
+    database_file_location = None
+    queue = []
+
+    @staticmethod
+    def get_student(student_id):
+        connection = get_db_connection()
+        if connection:
+            command = "SELECT * FROM queue WHERE author_id={};".format(student_id)
+            cursor = connection.cursor()
+            cursor.execute(command)
+            data = cursor.fetchall()
+            cursor.close()
+            connection.close()
+            return data[0] if len(data) > 0 else None
+        return None
+
+    @staticmethod
+    def is_student_in_queue(student_id):
+        student = Db.get_student(student_id)
+        return student is not None
+
+    @staticmethod
+    def add_student(student_id, message_id):
+        connection = get_db_connection()
+        if connection:
+            command = f"INSERT INTO queue (author_id, message_id) VALUES ({student_id}, {message_id});"
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+    @staticmethod
+    def remove_student(student_id):
+        connection = get_db_connection()
+        if connection:
+            command = "DELETE FROM queue WHERE author_id={};".format(student_id)
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()
+            cursor.close()
+            connection.close()
 
 
 def init_discord_wrapper():
