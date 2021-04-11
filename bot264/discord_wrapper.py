@@ -1,6 +1,7 @@
 import json
 import os
 import sqlite3
+import time
 
 import discord
 
@@ -51,8 +52,35 @@ def create_db():
     Db.database_file_location = os.getenv('DATABASE', None)
     connection = get_db_connection()
     if connection:
-        command = """CREATE TABLE IF NOT EXISTS queue (author_id integer PRIMARY KEY, message_id integer NOT NULL);"""
+        command = """CREATE TABLE IF NOT EXISTS queue (
+                            author_id integer PRIMARY KEY, 
+                            message_id integer NOT NULL,
+                            ta_id integer,
+                            wait_time integer,
+                            start_time integer
+        );"""
         cursor = connection.cursor()
+        cursor.execute(command)
+        command = """CREATE TABLE IF NOT EXISTS history (
+                            id integer PRIMARY KEY, 
+                            student_id integer, 
+                            ta_id integer,
+                            student_name TEXT,
+                            ta_name TEXT,
+                            start_time integer, 
+                            end_time integer,
+                            total_time integer 
+                            );
+                            """
+        cursor.execute(command)
+        command = """CREATE TABLE IF NOT EXISTS students (
+                            student_id integer PRIMARY KEY, 
+                            student_name TEXT,
+                            num_requests integer,
+                            total_time integer, 
+                            recorded_date integer 
+                            );
+                            """
         cursor.execute(command)
         cursor.close()
         connection.close()
@@ -60,10 +88,9 @@ def create_db():
 
 class Db:
     database_file_location = None
-    queue = []
 
     @staticmethod
-    def get_student(student_id):
+    def get_queue_by_student_id(student_id):
         connection = get_db_connection()
         if connection:
             command = "SELECT * FROM queue WHERE author_id={};".format(student_id)
@@ -76,15 +103,66 @@ class Db:
         return None
 
     @staticmethod
+    def get_queue_by_message_id(message_id):
+        connection = get_db_connection()
+        if connection:
+            command = "SELECT * FROM queue WHERE message_id={};".format(message_id)
+            cursor = connection.cursor()
+            cursor.execute(command)
+            data = cursor.fetchall()
+            cursor.close()
+            connection.close()
+            return data[0] if len(data) > 0 else None
+        return None
+
+    @staticmethod
+    def get_student(student_id):
+        connection = get_db_connection()
+        if connection:
+            command = "SELECT * FROM students WHERE student_id={};".format(student_id)
+            cursor = connection.cursor()
+            cursor.execute(command)
+            data = cursor.fetchall()
+            cursor.close()
+            connection.close()
+            return data[0] if len(data) > 0 else None
+        return None
+
+    @staticmethod
     def is_student_in_queue(student_id):
-        student = Db.get_student(student_id)
+        student = Db.get_queue_by_student_id(student_id)
         return student is not None
 
     @staticmethod
     def add_student(student_id, message_id):
         connection = get_db_connection()
         if connection:
-            command = f"INSERT INTO queue (author_id, message_id) VALUES ({student_id}, {message_id});"
+            command = f"""INSERT INTO queue (author_id, message_id, wait_time)
+                      VALUES ({student_id}, {message_id}, {int(time.time())});"""
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+    @staticmethod
+    def set_start_time(student_id, ta_id):
+        connection = get_db_connection()
+        if connection:
+            command = f"""UPDATE queue SET start_time={int(time.time())}, ta_id={ta_id}
+                        WHERE author_id={student_id};"""
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+    @staticmethod
+    def set_wait_time(student_id):
+        connection = get_db_connection()
+        if connection:
+            command = f"""UPDATE queue SET wait_time={int(time.time())} 
+                        WHERE author_id={student_id};"""
             cursor = connection.cursor()
             cursor.execute(command)
             connection.commit()
@@ -95,9 +173,35 @@ class Db:
     def remove_student(message_id):
         connection = get_db_connection()
         if connection:
+            student = Db.get_queue_by_message_id(message_id)
             command = "DELETE FROM queue WHERE message_id={};".format(message_id)
             cursor = connection.cursor()
             cursor.execute(command)
+
+            if student is not None and len(student) >= 5 and \
+                    (student[4] not in [None, 0]) and (student[2] not in [None, 0]):
+                client: discord.Client = DiscordWrapper.client
+                student_user: discord.User = client.get_user(student[0])
+                ta_user: discord.User = client.get_user(student[2])
+                end_time = int(time.time())
+                total_time = end_time - student[4]
+                command = f"""INSERT INTO 
+                history (student_id, ta_id, student_name, ta_name, start_time, end_time, total_time)
+                VALUES ({student[0]}, {student[2]}, "{student_user.display_name}", "{ta_user.display_name}", 
+                {student[4]}, {end_time}, {total_time});
+                """
+                cursor.execute(command)
+
+                student_usage = Db.get_student(student[0])
+                if student_usage is None:
+                    command = f"""INSERT INTO students (student_id, student_name, num_requests, total_time) 
+                                VALUES ({student[0]}, "{student_user.display_name}", 1, {total_time});"""
+                else:
+                    command = f"""UPDATE students SET num_requests={student_usage[2] + 1}, 
+                                total_time={student_usage[3] + total_time}
+                                WHERE student_id={student[0]};"""
+                cursor.execute(command)
+
             connection.commit()
             cursor.close()
             connection.close()

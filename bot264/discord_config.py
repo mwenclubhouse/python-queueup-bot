@@ -70,7 +70,7 @@ async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent
     if is_admin or payload.user_id == author.id:
         response = UserResponse()
         run_command = await response.run_emoji_command(
-            payload.emoji.name, message, payload.member.voice, is_admin=is_admin)
+            payload.emoji.name, message, payload.member, is_admin=is_admin)
 
     if not run_command:
         await message.remove_reaction(payload.emoji, payload.member)
