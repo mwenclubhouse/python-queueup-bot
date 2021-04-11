@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name='queue_bot',
-    version="0.0.0",
+    version="0.0.1",
     install_requires=requirements,
     author="Matthew Wen",
     author_email="mattwen2018@gmail.com",
