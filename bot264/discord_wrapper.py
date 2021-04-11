@@ -29,13 +29,15 @@ class Permissions:
             target_channel: discord.TextChannel = client.get_channel(Permissions.rooms[ta_channel_id])
             await target_channel.purge()
             if state:
+                await target_channel.set_permissions(student, read_messages=state, send_messages=state)
                 message_to_student = """
                 You can have a 1 on 1 conversation here with your TA. 
                 Hopefully, this session is helpful.
                 """
                 discord_message = create_simple_message("Hey There {}".format(student.display_name), message_to_student)
                 await target_channel.send(embed=discord_message)
-            await target_channel.set_permissions(student, read_messages=state, send_messages=state)
+            else:
+                await target_channel.set_permissions(student, overwrite=None)
 
 
 def get_db_connection():
