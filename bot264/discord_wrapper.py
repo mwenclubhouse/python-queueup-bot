@@ -69,7 +69,8 @@ def create_db():
                             ta_name TEXT,
                             start_time integer, 
                             end_time integer,
-                            total_time integer 
+                            total_time integer,
+                            wait_time integer,
                             );
                             """
         cursor.execute(command)
@@ -185,10 +186,11 @@ class Db:
                 ta_user: discord.User = client.get_user(student[2])
                 end_time = int(time.time())
                 total_time = end_time - student[4]
+                wait_time = student[4] - student[3]
                 command = f"""INSERT INTO 
-                history (student_id, ta_id, student_name, ta_name, start_time, end_time, total_time)
+                history (student_id, ta_id, student_name, ta_name, start_time, end_time, total_time， wait_time)
                 VALUES ({student[0]}, {student[2]}, "{student_user.display_name}", "{ta_user.display_name}", 
-                {student[4]}, {end_time}, {total_time});
+                {student[4]}, {end_time}, {total_time}, {wait_time});
                 """
                 cursor.execute(command)
 
