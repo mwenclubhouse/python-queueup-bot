@@ -1,5 +1,5 @@
 import discord
-from bot264.discord_wrapper import DiscordWrapper
+from bot264.discord_wrapper import DiscordWrapper, Db
 
 
 async def clear_emojis(message):
@@ -26,7 +26,8 @@ class UserResponse:
         return self.response[-1]
 
     async def run_emoji_command(self, emoji, message: discord.message.Message,
-                                ta_voice_state: discord.member.VoiceState, is_admin=False):
+                                ta_member: discord.Member, is_admin=False):
+        ta_voice_state: discord.member.VoiceState = ta_member.voice
         if emoji == "❌":
             await DiscordWrapper.disconnect_user(message.author, ta_voice_state)
             await message.delete()
@@ -40,6 +41,7 @@ class UserResponse:
                         self.set_options("helping")
                         await clear_emojis(message)
                         await self.send_message(message)
+                        Db.set_start_time(message.author.id, ta_member.id)
                 elif emoji == "⌛":
                     # Kick out anyone in their voice channel rn btw.
                     is_successful = True
@@ -47,6 +49,7 @@ class UserResponse:
                     self.set_options()
                     await clear_emojis(message)
                     await self.send_message(message)
+                    Db.set_wait_time(message.author.id)
                 elif emoji == "✅":
                     # Kick out anyone in their voice channel rn btw.
                     is_successful = True
