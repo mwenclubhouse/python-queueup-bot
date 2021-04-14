@@ -44,18 +44,20 @@ class UserResponse:
                         Db.set_start_time(message.author.id, ta_member.id)
                 elif emoji == "⌛":
                     # Kick out anyone in their voice channel rn btw.
-                    is_successful = True
-                    await DiscordWrapper.move_user_to_waiting_room(message.author, ta_voice_state)
-                    self.set_options()
-                    await clear_emojis(message)
-                    await self.send_message(message)
-                    Db.set_wait_time(message.author.id)
+                    if Db.is_ta_helping_student(message.author.id, ta_member.id):
+                        is_successful = True
+                        await DiscordWrapper.move_user_to_waiting_room(message.author, ta_voice_state)
+                        self.set_options()
+                        await clear_emojis(message)
+                        await self.send_message(message)
+                        Db.set_wait_time(message.author.id)
                 elif emoji == "✅":
                     # Kick out anyone in their voice channel rn btw.
-                    is_successful = True
-                    await DiscordWrapper.disconnect_user(message.author, ta_voice_state)
-                    await DiscordWrapper.add_history(message)
-                    await message.delete()
+                    if Db.is_ta_helping_student(message.author.id, ta_member.id):
+                        is_successful = True
+                        await DiscordWrapper.disconnect_user(message.author, ta_voice_state)
+                        await DiscordWrapper.add_history(message)
+                        await message.delete()
                 return is_successful
             else:
                 if emoji == "🔄":
