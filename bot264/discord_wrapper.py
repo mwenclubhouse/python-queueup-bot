@@ -91,6 +91,13 @@ class Db:
     database_file_location = None
 
     @staticmethod
+    def is_ta_helping_student(student_id, ta_id):
+        student = Db.get_queue_by_student_id(student_id)
+        if student is not None:
+            return student[2] == ta_id
+        return False
+
+    @staticmethod
     def get_queue_by_student_id(student_id):
         connection = get_db_connection()
         if connection:
