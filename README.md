@@ -26,6 +26,17 @@ python3 bin/queueup-bot
 ```
 Please note that your working directory must be the root of the file so it can access the .env file. I would recommend using Pycharm for this project. 
 
+## Permissions to Set for the bot
+1. Move Members
+2. Read Message History
+3. Manage Messages
+4. Add Reactions
+5. Embed Links
+6. Send Messages
+7. Manage Emojis
+8. Manage Channels
+9. View Channels
+
 ## Installation [Production]
 You can install it using the following command
 ```bash
