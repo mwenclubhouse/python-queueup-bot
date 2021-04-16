@@ -37,6 +37,9 @@ Please note that your working directory must be the root of the file so it can a
 8. Manage Channels
 9. View Channels
 
+Also enable Privileged Gateway Intents.
+- TODO: Explain More. 
+
 ## Installation [Production]
 You can install it using the following command
 ```bash
