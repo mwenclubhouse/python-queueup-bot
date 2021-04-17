@@ -81,6 +81,7 @@ async def on_message(message: discord.message.Message):
     response: UserResponse = UserResponse()
     student_member: discord.Member = message.author
     is_admin = DiscordWrapper.is_admin(student_member)
+    Db.add_name_by_id(student_member)
 
     if DiscordWrapper.queue_channel == message.channel.id:
         if student_member != client.user and not is_admin:

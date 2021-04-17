@@ -1,0 +1,16 @@
+[Unit] 
+Description=Python Script For Reporting Data from QueueUp Discord Bot to Google Drive
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+Environment=PRODUCTION=1
+EnvironmentFile=%h/environments/queueup.environment
+WorkingDirectory=%h
+
+Type = simple
+StandardOutput=syslog
+StandardError=syslog
+ExecStart=/bin/bash -c "PATH=~/.local/bin:$PATH report"
+
+Restart=on-failure
+RestartSec=5

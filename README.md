@@ -15,6 +15,7 @@ WAITING_ROOM=[Voice Channel ID for Waiting Room]
 BOT_CHANNEL_ID=[Text Channel ID for bot commands only for TAs]
 ROOMS="{'voice channel': 'text channel'}"
 DATABASE=[Location of the Database]
+GOOGLE_ACCOUNT_KEY_FILE='Location of Google File to Sync with Google Drive'
 ```
 For rooms, each voice channel will be assigned a text channel. As a result, if there is a video failure, the TA and student can still connect via text channel.
 
@@ -24,7 +25,21 @@ To run it, you can run bin/gueueup-bot directly.
 ```bash
 python3 bin/queueup-bot
 ```
-Please note that your working directory must be the root of the file so it can access the .env file. I would recommend using Pycharm for this project. 
+Please note that your working directory must be the root of the file, so it can access the .env file. I would recommend using Pycharm for this project. 
+
+## Permissions to Set for the bot
+1. Move Members
+2. Read Message History
+3. Manage Messages
+4. Add Reactions
+5. Embed Links
+6. Send Messages
+7. Manage Emojis
+8. Manage Channels
+9. View Channels
+
+Also enable Privileged Gateway Intents.
+- This gives the bot more control over getting members inside a server.
 
 ## Installation [Production]
 You can install it using the following command

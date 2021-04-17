@@ -83,12 +83,43 @@ def create_db():
                             );
                             """
         cursor.execute(command)
+        command = """CREATE TABLE IF NOT EXISTS member_names (
+            student_id integer PRIMARY KEY,
+            student_name TEXT
+        );"""
+        cursor.execute(command)
         cursor.close()
         connection.close()
 
 
 class Db:
     database_file_location = None
+
+    @staticmethod
+    def add_name_by_id(member: discord.Member):
+        connection = get_db_connection()
+        if connection:
+            display_name = member.display_name
+            member_id = member.id
+            command = f"INSERT OR IGNORE INTO member_names (student_id, student_name) VALUES ({member_id}, {display_name});"
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+    @staticmethod
+    def get_name_by_id(student_id, default_value=None):
+        connection = get_db_connection()
+        if connection:
+            command = f"SELECT * FROM member_names WHERE student_id={student_id}"
+            cursor = connection.cursor()
+            cursor.execute(command)
+            data = cursor.fetchall()
+            cursor.close()
+            connection.close()
+            return data[0][1] if len(data) > 0 else default_value
+        return default_value
 
     @staticmethod
     def is_ta_helping_student(student_id, ta_id):
