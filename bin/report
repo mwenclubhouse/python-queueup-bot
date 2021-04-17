@@ -17,7 +17,10 @@ create_db()
 
 
 def upload_to_google_sheets():
-    gc = gspread.service_account(filename='.google/mwenclubhouse-google.json')
+    file_name = os.getenv("GOOGLE_ACCOUNT_KEY_FILE")
+    if file_name is None:
+        return
+    gc = gspread.service_account(filename=file_name)
     sh = gc.open("students")
     database_file = os.getenv("DATABASE")
 
