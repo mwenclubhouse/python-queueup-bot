@@ -35,7 +35,7 @@ def upload_to_google_sheets():
     for row in cur.execute(student_command):
         reference = Db.get_name_by_id(row[0], default_value=row[1])
         number_requests = row[2]
-        total_duration = row[3]
+        total_duration = row[3] / 60
         copy_row = [reference, number_requests, total_duration]
         student_document.append(copy_row)
 
@@ -62,5 +62,6 @@ def upload_to_google_sheets():
 
 
 scheduler = BlockingScheduler()
+upload_to_google_sheets()
 scheduler.add_job(upload_to_google_sheets, 'interval', hours=1)
 scheduler.start()
