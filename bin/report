@@ -48,8 +48,8 @@ def upload_to_google_sheets():
     for row in cur.execute(history_command):
         student_reference = Db.get_name_by_id(row[1], default_value=row[3])
         ta_reference = Db.get_name_by_id(row[2], default_value=row[4])
-        request_time = datetime.fromtimestamp(row[5]).astimezone(pytz.timezone("America/Indiana/Indianapolis"))
-        start_time = datetime.fromtimestamp(row[6])
+        request_time = str(datetime.fromtimestamp(row[5]).astimezone(pytz.timezone("America/Indiana/Indianapolis")))
+        start_time = str(datetime.fromtimestamp(row[6]).astimezone(pytz.timezone("America/Indiana/Indianapolis")))
         session_duration = row[7] / 60
         wait_duration = row[8] / 60
         copy_row = [student_reference, ta_reference, request_time, start_time, session_duration, wait_duration]
