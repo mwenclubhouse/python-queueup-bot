@@ -3,6 +3,7 @@ Basically QueueUp Live But on Discord
 
 ## Running it Locally
 You would need to create environment variables in order for the program to work. 
+You need to create a .env file inside your project directory, and assign these variable names. 
 ```
 TOKEN=[Token from Discord API]
 QUEUE_CHANNEL_ID=[Text Channel ID to run the queue in]
@@ -24,6 +25,21 @@ To run it, you can run bin/gueueup-bot directly.
 ```bash
 python3 bin/queueup-bot
 ```
+Please note that your working directory must be the root of the file so it can access the .env file. I would recommend using Pycharm for this project. 
+
+## Permissions to Set for the bot
+1. Move Members
+2. Read Message History
+3. Manage Messages
+4. Add Reactions
+5. Embed Links
+6. Send Messages
+7. Manage Emojis
+8. Manage Channels
+9. View Channels
+
+Also enable Privileged Gateway Intents.
+- TODO: Explain More. 
 
 ## Installation [Production]
 You can install it using the following command
@@ -46,4 +62,7 @@ Home Directory
 ├─── scripts 
 │    └── queueup.sh [Used only for CI/CD. It is optional]
 ```
+
+## Running on AWS EC2 Instance
+There is a script called ec2.sh, which can be runned on an EC2 instance if you decide to run the bot on an EC2 Instance. The Bot is currently being runned by the cheapest EC2 Instance on AWS. 
 
