@@ -25,7 +25,7 @@ To run it, you can run bin/gueueup-bot directly.
 ```bash
 python3 bin/queueup-bot
 ```
-Please note that your working directory must be the root of the file so it can access the .env file. I would recommend using Pycharm for this project. 
+Please note that your working directory must be the root of the file, so it can access the .env file. I would recommend using Pycharm for this project. 
 
 ## Permissions to Set for the bot
 1. Move Members
@@ -39,7 +39,7 @@ Please note that your working directory must be the root of the file so it can a
 9. View Channels
 
 Also enable Privileged Gateway Intents.
-- TODO: Explain More. 
+- This gives the bot more control over getting members inside a server.
 
 ## Installation [Production]
 You can install it using the following command
