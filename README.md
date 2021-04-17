@@ -14,6 +14,7 @@ WAITING_ROOM=[Voice Channel ID for Waiting Room]
 BOT_CHANNEL_ID=[Text Channel ID for bot commands only for TAs]
 ROOMS="{'voice channel': 'text channel'}"
 DATABASE=[Location of the Database]
+GOOGLE_ACCOUNT_KEY_FILE='Location of Google File to Sync with Google Drive'
 ```
 For rooms, each voice channel will be assigned a text channel. As a result, if there is a video failure, the TA and student can still connect via text channel.
 

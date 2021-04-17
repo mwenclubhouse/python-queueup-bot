@@ -9,6 +9,8 @@ python-dotenv = "*"
 install = "*"
 pytest = "*"
 pytz = "*"
+gspread = "*"
+apscheduler = "*"
 
 [dev-packages]
 
