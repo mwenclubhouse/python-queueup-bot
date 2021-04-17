@@ -11,7 +11,7 @@ setuptools.setup(
     author_email="mattwen2018@gmail.com",
     description="QueueUpBot",
     packages=setuptools.find_packages(),
-    scripts=["bin/queueup-bot"],
+    scripts=["bin/queueup-bot", "bin/report"],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
