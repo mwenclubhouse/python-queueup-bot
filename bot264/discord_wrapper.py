@@ -101,7 +101,9 @@ class Db:
         if connection:
             display_name = member.display_name
             member_id = member.id
-            command = f"INSERT OR IGNORE INTO member_names (student_id, student_name) VALUES ({member_id}, {display_name});"
+            command = f"""
+            REPLACE INTO member_names (student_id, student_name) 
+            VALUES ({member_id}, "{display_name}");"""
             cursor = connection.cursor()
             cursor.execute(command)
             connection.commit()
