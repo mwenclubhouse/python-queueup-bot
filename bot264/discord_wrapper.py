@@ -23,6 +23,14 @@ class Permissions:
     rooms = None
 
     @staticmethod
+    async def remove_permissions_from_all_rooms(student):
+        client: discord.Client = DiscordWrapper.client
+        for _, v in Permissions.rooms:
+            target_channel: discord.TextChannel = client.get_channel(v)
+            if target_channel is not None:
+                await target_channel.set_permissions(student, overwrite=None)
+
+    @staticmethod
     async def set_access_to_text_channel(student, ta_voice_channel, state):
         client: discord.Client = DiscordWrapper.client
         ta_channel_id = ta_voice_channel.channel.id
@@ -38,7 +46,7 @@ class Permissions:
                 discord_message = create_simple_message("Hey There {}".format(student.display_name), message_to_student)
                 await target_channel.send(embed=discord_message)
             else:
-                await target_channel.set_permissions(student, overwrite=None)
+                await Permissions.remove_permissions_from_all_rooms(student)
 
 
 def get_db_connection():
