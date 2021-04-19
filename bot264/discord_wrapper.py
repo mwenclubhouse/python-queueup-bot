@@ -25,7 +25,7 @@ class Permissions:
     @staticmethod
     async def remove_permissions_from_all_rooms(student):
         client: discord.Client = DiscordWrapper.client
-        for _, v in Permissions.rooms:
+        for _, v in Permissions.rooms.items():
             target_channel: discord.TextChannel = client.get_channel(v)
             if target_channel is not None:
                 await target_channel.set_permissions(student, overwrite=None)
