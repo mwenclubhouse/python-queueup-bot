@@ -251,12 +251,10 @@ class Db:
                                 total_time={student_usage[3] + total_time}
                                 WHERE student_id={student[0]};"""
                 cursor.execute(command)
-                return student_user
 
             connection.commit()
             cursor.close()
             connection.close()
-            return None
 
 
 def init_discord_wrapper():
