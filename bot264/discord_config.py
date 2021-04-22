@@ -2,7 +2,7 @@ import os
 
 import discord
 
-from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper, process_rooms, create_db, Db
+from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper, process_rooms, create_db, Db, Permissions
 from .commands import UserCommand, LockQueueCommand, UnLockQueueCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands, create_simple_message
@@ -114,7 +114,9 @@ async def on_message(message: discord.message.Message):
 @client.event
 async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
     if payload.channel_id == DiscordWrapper.queue_channel:
-        Db.remove_student(payload.message_id)
+        student_user = Db.remove_student(payload.message_id)
+        if student_user is not None:
+            await Permissions.remove_permissions_from_all_rooms(student_user)
 
 
 @client.event
