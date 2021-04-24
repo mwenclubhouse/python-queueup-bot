@@ -45,6 +45,8 @@ class Permissions:
                 """
                 discord_message = create_simple_message("Hey There {}".format(student.display_name), message_to_student)
                 await target_channel.send(embed=discord_message)
+            else:
+                await Permissions.remove_permissions_from_all_rooms(student)
 
 
 def get_db_connection():
