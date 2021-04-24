@@ -2,7 +2,7 @@ import os
 
 import discord
 
-from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper, process_rooms, create_db, Db
+from bot264.discord_wrapper import DiscordWrapper, init_discord_wrapper, process_rooms, create_db, Db, Permissions
 from .commands import UserCommand, LockQueueCommand, UnLockQueueCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands, create_simple_message
@@ -119,7 +119,12 @@ async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
 
 @client.event
 async def on_voice_state_update(member: discord.Member, before, after):
-    if after.channel is not None and after.channel.id == DiscordWrapper.waiting_room:
+    is_admin = DiscordWrapper.is_admin(member)
+    if is_admin:
+        return
+    if after.channel is None:
+        await Permissions.remove_permissions_from_all_rooms(member)
+    elif after.channel.id == DiscordWrapper.waiting_room:
         if not Db.is_student_in_queue(member.id):
             dm_channel = await member.create_dm()
             message = create_simple_message("Error", "Make sure to type your request inside THE QUEUE!!")
