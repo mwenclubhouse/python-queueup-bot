@@ -57,12 +57,16 @@ def upload_to_google_sheets():
         request_time = str(datetime.fromtimestamp(row[5]).astimezone(pytz.timezone("America/Indiana/Indianapolis")))
         start_time = str(datetime.fromtimestamp(row[6]).astimezone(pytz.timezone("America/Indiana/Indianapolis")))
         session_duration = (row[6] - row[5]) / 60
+        if (row[6] - row[5]) != row[7]:
+            command = f"UPDATE history set total_time={row[6] - row[5]} where id={row[0]}"
+            cur.execute(command)
         wait_duration = row[8] / 60
         copy_row = [student_reference, ta_reference, request_time, start_time, session_duration, wait_duration]
         history_document.append(copy_row)
     history_worksheet = sh.get_worksheet(1)
     history_worksheet.update('A1', history_document)
 
+    con.commit()
     cur.close()
     con.close()
 
