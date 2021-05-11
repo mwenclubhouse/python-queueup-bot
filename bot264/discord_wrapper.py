@@ -13,6 +13,7 @@ class Permissions:
         connection = get_server_db_connection(server_id)
         command = f"SELECT * FROM rooms;"
         data = get_sqlite_data(connection, command)
+        self.server_id = server_id
         self.rooms = {}
         if data:
             for room in data:
@@ -231,10 +232,7 @@ class Db:
             await user_id.move_to(None)
 
     def is_emoji_channels(self, channel_id):
-        connection = get_db_connection(Db.database_file_location)
-        command = "SELECT queue_channel_id, history_channel_id FROM queues;"
-        data = get_sqlite_data(connection, command)
-        return channel_id in data[0] if data is not None and len(data) > 0 else False
+        return channel_id in [self.queue_channel, self.history_channel]
 
     @staticmethod
     def is_admin_role(role: discord.role.Role):
