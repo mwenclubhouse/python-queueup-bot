@@ -1,5 +1,5 @@
 import discord
-from bot264.discord_wrapper import DiscordWrapper, Db
+from bot264.discord_wrapper import Db
 
 
 async def clear_emojis(message):
@@ -25,38 +25,38 @@ class UserResponse:
             return None
         return self.response[-1]
 
-    async def run_emoji_command(self, emoji, message: discord.message.Message,
+    async def run_emoji_command(self, db: Db, emoji, message: discord.message.Message,
                                 ta_member: discord.Member, is_admin=False):
         ta_voice_state: discord.member.VoiceState = ta_member.voice
         if emoji == "❌":
-            await DiscordWrapper.disconnect_user(message.author, ta_voice_state)
+            await db.disconnect_user(message.author, ta_voice_state)
             await message.delete()
         elif is_admin:
             is_successful = False
             if ta_voice_state is not None:
                 if emoji == "✋":
                     # Add user into voice channel
-                    is_successful = await DiscordWrapper.move_user_to_office_hours(message.author, ta_voice_state)
+                    is_successful = await db.move_user_to_office_hours(message.author, ta_voice_state)
                     if is_successful:
                         self.set_options("helping")
                         await clear_emojis(message)
                         await self.send_message(message)
-                        Db.set_start_time(message.author.id, ta_member.id)
+                        db.set_start_time(message.author.id, ta_member.id)
                 elif emoji == "⌛":
                     # Kick out anyone in their voice channel rn btw.
-                    if Db.is_ta_helping_student(message.author.id, ta_member.id):
+                    if db.is_ta_helping_student(message.author.id, ta_member.id):
                         is_successful = True
-                        await DiscordWrapper.move_user_to_waiting_room(message.author, ta_voice_state)
+                        await db.move_user_to_waiting_room(message.author, ta_voice_state)
                         self.set_options()
                         await clear_emojis(message)
                         await self.send_message(message)
-                        Db.set_wait_time(message.author.id)
+                        db.set_wait_time(message.author.id)
                 elif emoji == "✅":
                     # Kick out anyone in their voice channel rn btw.
-                    if Db.is_ta_helping_student(message.author.id, ta_member.id):
+                    if db.is_ta_helping_student(message.author.id, ta_member.id):
                         is_successful = True
-                        await DiscordWrapper.disconnect_user(message.author, ta_voice_state)
-                        await DiscordWrapper.add_history(message)
+                        await db.disconnect_user(message.author, ta_voice_state)
+                        await db.add_history(message)
                         await message.delete()
                 return is_successful
             else:
