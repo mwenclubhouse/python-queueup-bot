@@ -6,15 +6,8 @@ You would need to create environment variables in order for the program to work.
 You need to create a .env file inside your project directory, and assign these variable names. 
 ```
 TOKEN=[Token from Discord API]
-QUEUE_CHANNEL_ID=[Text Channel ID to run the queue in]
-HISTORY_CHANNEL_ID=[Text Channel ID to store history]
-UTA_ROLE_ID=[Role ID for the UTAs]
-GTA_ROLE_ID=[Role ID for the GTAs]
-PROFESSOR_ROLE_ID=[Role ID for Professor] 
-WAITING_ROOM=[Voice Channel ID for Waiting Room]
-BOT_CHANNEL_ID=[Text Channel ID for bot commands only for TAs]
-ROOMS="{'voice channel': 'text channel'}"
 DATABASE=[Location of the Database]
+DATABASE_DIRECTORY=[Location of Databases to other servers]
 GOOGLE_ACCOUNT_KEY_FILE='Location of Google File to Sync with Google Drive'
 ```
 For rooms, each voice channel will be assigned a text channel. As a result, if there is a video failure, the TA and student can still connect via text channel.
