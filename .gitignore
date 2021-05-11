@@ -131,3 +131,5 @@ dmypy.json
 .idea/
 Pipfile.lock
 queueup.db
+test_queue_directory
+discord_database_setup.py

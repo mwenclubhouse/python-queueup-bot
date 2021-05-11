@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+"""
+1. Google Drive Report Feature is temporary stopped for scalability. Feature will be read added once built for scale
+
 import gspread
 import sqlite3
 import heapq
@@ -6,7 +9,7 @@ import heapq
 import pytz as pytz
 from apscheduler.schedulers.blocking import BlockingScheduler
 import os
-from bot264.discord_wrapper import Db, create_db
+from bot264.discord_wrapper import Db, create_server_db
 from datetime import datetime
 
 if os.getenv("PRODUCTION", None) != "1":
@@ -14,7 +17,8 @@ if os.getenv("PRODUCTION", None) != "1":
 
     load_dotenv()
 
-create_db()
+
+create_server_db()
 
 
 def upload_to_google_sheets():
@@ -75,3 +79,4 @@ scheduler = BlockingScheduler()
 upload_to_google_sheets()
 scheduler.add_job(upload_to_google_sheets, 'interval', hours=1)
 scheduler.start()
+"""

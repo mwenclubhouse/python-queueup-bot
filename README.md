@@ -6,16 +6,9 @@ You would need to create environment variables in order for the program to work.
 You need to create a .env file inside your project directory, and assign these variable names. 
 ```
 TOKEN=[Token from Discord API]
-QUEUE_CHANNEL_ID=[Text Channel ID to run the queue in]
-HISTORY_CHANNEL_ID=[Text Channel ID to store history]
-UTA_ROLE_ID=[Role ID for the UTAs]
-GTA_ROLE_ID=[Role ID for the GTAs]
-PROFESSOR_ROLE_ID=[Role ID for Professor] 
-WAITING_ROOM=[Voice Channel ID for Waiting Room]
-BOT_CHANNEL_ID=[Text Channel ID for bot commands only for TAs]
-ROOMS="{'voice channel': 'text channel'}"
 DATABASE=[Location of the Database]
-GOOGLE_ACCOUNT_KEY_FILE='Location of Google File to Sync with Google Drive'
+DATABASE_DIRECTORY=[Location of Databases to other servers]
+GOOGLE_ACCOUNT_KEY_FILE=[Location of Google File to Sync with Google Drive]
 ```
 For rooms, each voice channel will be assigned a text channel. As a result, if there is a video failure, the TA and student can still connect via text channel.
 
@@ -44,7 +37,7 @@ Also enable Privileged Gateway Intents.
 ## Installation [Production]
 You can install it using the following command
 ```bash
-python3 setup.py install --user
+python3 setup.py install
 ```
 
 You run it using the following
@@ -56,6 +49,11 @@ queueup-bot
 ```.
 Home Directory
 │
+├─── databases
+│    └── queueup.db [database for Server]
+│    └── queueup-servers [directory of other sqlite3 databases]
+│        └── example-server-id.db [server's attributes (rooms, queues, history, etc)]
+│
 ├─── environments 
 │    └── queueup.environment [Location to store enivronment variables]
 │
@@ -64,5 +62,6 @@ Home Directory
 ```
 
 ## Running on AWS EC2 Instance
-There is a script called ec2.sh, which can be runned on an EC2 instance if you decide to run the bot on an EC2 Instance. The Bot is currently being runned by the cheapest EC2 Instance on AWS. 
-
+There is a script called ec2.sh, which can run on an EC2 instance if you decide to run the bot on an EC2 Instance. 
+The Bot is currently being run by the cheapest EC2 Instance on AWS. 
+For scalability, I am planning to use AWS Elastic Beanstalk.

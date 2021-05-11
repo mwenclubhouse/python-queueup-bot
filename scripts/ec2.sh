@@ -9,6 +9,6 @@ cp service/queueup-bot.service /lib/systemd/system
 cp service/queueup-report.service /lib/systemd/system
 systemctl daemon-reload
 systemctl restart queueup-bot.service
-systemctl restart queueup-report.service
+# systemctl restart queueup-report.service
 loginctl enable-linger $USER
 exit
