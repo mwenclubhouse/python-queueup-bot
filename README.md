@@ -8,7 +8,7 @@ You need to create a .env file inside your project directory, and assign these v
 TOKEN=[Token from Discord API]
 DATABASE=[Location of the Database]
 DATABASE_DIRECTORY=[Location of Databases to other servers]
-GOOGLE_ACCOUNT_KEY_FILE='Location of Google File to Sync with Google Drive'
+GOOGLE_ACCOUNT_KEY_FILE=[Location of Google File to Sync with Google Drive]
 ```
 For rooms, each voice channel will be assigned a text channel. As a result, if there is a video failure, the TA and student can still connect via text channel.
 
@@ -37,7 +37,7 @@ Also enable Privileged Gateway Intents.
 ## Installation [Production]
 You can install it using the following command
 ```bash
-python3 setup.py install --user
+python3 setup.py install
 ```
 
 You run it using the following
@@ -62,5 +62,6 @@ Home Directory
 ```
 
 ## Running on AWS EC2 Instance
-There is a script called ec2.sh, which can be runned on an EC2 instance if you decide to run the bot on an EC2 Instance. The Bot is currently being runned by the cheapest EC2 Instance on AWS. 
-
+There is a script called ec2.sh, which can run on an EC2 instance if you decide to run the bot on an EC2 Instance. 
+The Bot is currently being run by the cheapest EC2 Instance on AWS. 
+For scalability, I am planning to use AWS Elastic Beanstalk.
