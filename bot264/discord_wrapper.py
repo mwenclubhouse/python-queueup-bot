@@ -45,7 +45,7 @@ class Permissions:
 
 def get_db_connection(file_location):
     if file_location is not None:
-        if os.path.isfile(file_location) or file_location != Db.database_file_location:
+        if os.path.isfile(file_location) or file_location == Db.database_file_location:
             return sqlite3.connect(file_location)
     return None
 
