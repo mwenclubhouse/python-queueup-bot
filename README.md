@@ -56,6 +56,11 @@ queueup-bot
 ```.
 Home Directory
 │
+├─── databases
+│    └── queueup.db [database for Server]
+│    └── queueup-servers [directory of other sqlite3 databases]
+│        └── example-server-id.db [server's attributes (rooms, queues, history, etc)]
+│
 ├─── environments 
 │    └── queueup.environment [Location to store enivronment variables]
 │
