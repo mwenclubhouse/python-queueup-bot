@@ -1,4 +1,10 @@
 #!/usr/bin/python3
+import os
+
+os.environ['PRODUCTION'] = "1"
+os.environ['DATABASE'] = ''
+os.environ['DATABASE_DIRECTORY'] = ''
+
 from bot264.discord_wrapper import create_server_db, Db, get_db_connection, get_server_db_connection, create_db
 
 Db.database_file_location = ""
@@ -48,6 +54,7 @@ INSERT INTO queues (queue_channel_id, history_channel_id, server_id) VALUES({que
 cursor.execute(command)
 cursor.close()
 connection.commit()
+connection.close()
 
 connection = get_server_db_connection(server_id)
 cursor = connection.cursor()
@@ -59,3 +66,4 @@ for k, v in rooms.items():
         cursor.execute(command)
 cursor.close()
 connection.commit()
+connection.close()
