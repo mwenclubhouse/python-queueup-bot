@@ -9,6 +9,7 @@ TOKEN=[Token from Discord API]
 DATABASE=[Location of the Database]
 DATABASE_DIRECTORY=[Location of Databases to other servers]
 GOOGLE_ACCOUNT_KEY_FILE=[Location of Google File to Sync with Google Drive]
+FIREBASE_KEY_FILE=[Key File to Sync with Google Firebase]
 ```
 For rooms, each voice channel will be assigned a text channel. As a result, if there is a video failure, the TA and student can still connect via text channel.
 
