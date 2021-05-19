@@ -31,6 +31,7 @@ Please note that your working directory must be the root of the file, so it can 
 7. Manage Emojis
 8. Manage Channels
 9. View Channels
+10. Manage Roles
 
 Also enable Privileged Gateway Intents.
 - This gives the bot more control over getting members inside a server.
