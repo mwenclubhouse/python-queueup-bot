@@ -9,8 +9,7 @@ def get_db():
     reference = os.getenv('REFERENCE', None)
     if reference is None:
         return None
-    print(reference)
-    return firestore.Client().collection(u'servers').document(reference)
+    return firestore.Client().collection(u'servers').document(reference).collection('queueup-bot')
 
 
 class FbDb:
