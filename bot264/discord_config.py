@@ -67,12 +67,10 @@ class GracefulKiller:
 
 @client.event
 async def on_ready():
-    print('Start of on Ready')
     create_db()
     FbDb.init()
     FbDb.listen()
     GracefulKiller()
-    print('End of on Ready')
 
 
 @client.event
@@ -108,7 +106,7 @@ async def on_message(message: discord.message.Message):
     is_admin = db.is_admin(student_member)
     db.add_name_by_id(student_member)
 
-    if db.queue_channel == message.channel.id:
+    if message.channel.id in db.queues:
         if student_member != client.user and not is_admin:
             if not db.is_student_in_queue(student_member.id):
                 response.set_options("waiting")
@@ -139,7 +137,7 @@ async def on_message(message: discord.message.Message):
 @client.event
 async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
     db = Db(payload.guild_id)
-    if payload.channel_id == db.queue_channel:
+    if payload.channel_id in db.queues:
         db.remove_student(payload.message_id)
 
 

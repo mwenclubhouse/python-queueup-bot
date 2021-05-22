@@ -6,10 +6,11 @@ from bot264.discord_wrapper import Db
 
 async def set_queue(message, state):
     db = Db(message.guild.id)
-    queue_channel: discord.channel.TextChannel = db.get_queue_channel()
-    for i in message.author.roles:
-        if not db.is_admin_role(i):
-            await queue_channel.set_permissions(send_messages=state, target=i)
+    queues = db.get_queues()
+    for q in queues:
+        for i in message.author.roles:
+            if not db.is_admin_role(i):
+                await q.set_permissions(send_messages=state, target=i)
 
 
 class LockQueueCommand(UserCommand):

@@ -3,6 +3,7 @@ import sqlite3
 import time
 
 import discord
+from discord import Forbidden
 
 from bot264.common import create_simple_message
 
@@ -23,7 +24,7 @@ class Permissions:
         client: discord.Client = DiscordWrapper.client
         for _, v in self.rooms.items():
             target_channel: discord.TextChannel = client.get_channel(v)
-            if target_channel is not None:
+            if target_channel not in [None, 0]:
                 try:
                     await target_channel.set_permissions(student, overwrite=None)
                 except discord.Forbidden as e:
@@ -34,8 +35,8 @@ class Permissions:
         ta_channel_id = ta_voice_channel.channel.id
         if ta_channel_id in self.rooms:
             target_channel: discord.TextChannel = client.get_channel(self.rooms[ta_channel_id])
-            await target_channel.purge()
             try:
+                await target_channel.purge()
                 if state:
                     await target_channel.set_permissions(student, read_messages=state, send_messages=state)
                     message_to_student = """
@@ -175,9 +176,9 @@ class Db:
         connection = get_db_connection(Db.database_file_location)
         command = f"SELECT queue_channel_id FROM queues WHERE server_id={self.server_id};"
         data = get_sqlite_data(connection, command, close_connection=False)
-        self.queue_channel = None
+        self.queues = []
         if data and len(data) > 0:
-            self.queue_channel = data[0][0]
+            self.queues = [i[0] for i in data]
 
         command = f"SELECT waiting_room_id FROM servers WHERE server_id={self.server_id};"
         data = get_sqlite_data(connection, command, close_connection=False)
@@ -194,13 +195,15 @@ class Db:
         command = f"SELECT bot_channel_id FROM servers WHERE server_id={self.server_id};"
         data = get_sqlite_data(connection, command, close_connection=True)
         self.bot_channel = None
-        if data and len(data) > 0:
+        if data and len(data) > 0 and data[0][0] != 0:
             self.bot_channel = data[0][0]
 
-    def get_queue_channel(self) -> discord.channel.TextChannel or None:
-        if self.queue_channel != 0:
-            return DiscordWrapper.client.get_channel(self.queue_channel)
-        return None
+    def get_queues(self):
+        queues = []
+        client = DiscordWrapper.client
+        for i in self.queues:
+            queues.append(client.get_channel(i))
+        return queues
 
     def get_waiting_room(self) -> discord.channel.VoiceChannel or None:
         if self.waiting_room != 0:
@@ -232,7 +235,7 @@ class Db:
             await user_id.move_to(None)
 
     def is_emoji_channels(self, channel_id):
-        return channel_id in [self.queue_channel, self.history_channel]
+        return channel_id == self.history_channel or channel_id in self.queues
 
     @staticmethod
     def is_admin_role(role: discord.role.Role):
@@ -253,7 +256,11 @@ class Db:
         embed_message = create_simple_message(message.author.display_name, message.content)
         if self.history_channel is not None:
             history_channel: discord.TextChannel = DiscordWrapper.client.get_channel(self.history_channel)
-            message = await history_channel.send(embed=embed_message)
+            try:
+                message = await history_channel.send(embed=embed_message)
+            except Forbidden as e:
+                print(e)
+
             for i in ["🔄", "❌"]:
                 await message.add_reaction(i)
 
