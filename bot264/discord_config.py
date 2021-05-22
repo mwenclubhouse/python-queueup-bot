@@ -1,8 +1,12 @@
+import asyncio
 import os
+import signal
+import sys
 
 import discord
 
-from bot264.discord_wrapper import DiscordWrapper, Db, Permissions, create_db
+from bot264.discord_wrapper import DiscordWrapper, Db, create_db
+from bot264.mwenclubhouse import FbDb
 from .commands import UserCommand, LockQueueCommand, UnLockQueueCommand
 from .common.user_response import UserResponse
 from .common.utils import iterate_commands, create_simple_message
@@ -15,7 +19,6 @@ if os.getenv("PRODUCTION", None) != "1":
 intents = discord.Intents.default()
 intents.members = True
 client: discord.Client = discord.Client(intents=intents)
-create_db()
 DiscordWrapper.client = client
 
 
@@ -48,9 +51,26 @@ async def handle_bot_commands(message, response: UserResponse):
         await run(obj, message, response)
 
 
+class GracefulKiller:
+    kill_now = False
+
+    def __init__(self):
+        client.loop.add_signal_handler(signal.SIGINT, self.exit_gracefully)
+        client.loop.add_signal_handler(signal.SIGTERM, self.exit_gracefully)
+
+    def exit_gracefully(self):
+        self.kill_now = True
+        FbDb.kill()
+        asyncio.ensure_future(client.close())
+        sys.exit()
+
+
 @client.event
 async def on_ready():
-    pass
+    create_db()
+    FbDb.init()
+    FbDb.listen()
+    GracefulKiller()
 
 
 @client.event
@@ -86,7 +106,7 @@ async def on_message(message: discord.message.Message):
     is_admin = db.is_admin(student_member)
     db.add_name_by_id(student_member)
 
-    if db.queue_channel == message.channel.id:
+    if message.channel.id in db.queues:
         if student_member != client.user and not is_admin:
             if not db.is_student_in_queue(student_member.id):
                 response.set_options("waiting")
@@ -117,7 +137,7 @@ async def on_message(message: discord.message.Message):
 @client.event
 async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
     db = Db(payload.guild_id)
-    if payload.channel_id == db.queue_channel:
+    if payload.channel_id in db.queues:
         db.remove_student(payload.message_id)
 
 

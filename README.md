@@ -8,7 +8,9 @@ You need to create a .env file inside your project directory, and assign these v
 TOKEN=[Token from Discord API]
 DATABASE=[Location of the Database]
 DATABASE_DIRECTORY=[Location of Databases to other servers]
-GOOGLE_ACCOUNT_KEY_FILE=[Location of Google File to Sync with Google Drive]
+GOOGLE_ACCOUNT_KEY_FILE=[Location of Google File to Sync with Google Drive (Optional)]
+GOOGLE_APPLICATION_CREDENTIALS=[Connection with Google Cloud (Optional)]
+REFERENCE=[Server Name (AWS EC2 Name) for Google Cloud Database (Optional)]
 ```
 For rooms, each voice channel will be assigned a text channel. As a result, if there is a video failure, the TA and student can still connect via text channel.
 
@@ -30,6 +32,7 @@ Please note that your working directory must be the root of the file, so it can 
 7. Manage Emojis
 8. Manage Channels
 9. View Channels
+10. Manage Roles
 
 Also enable Privileged Gateway Intents.
 - This gives the bot more control over getting members inside a server.
