@@ -65,7 +65,7 @@ class FbDb:
             connection.commit()
             connection.close()
 
-        connection = get_server_db_connection(server_id)
+        connection = get_server_db_connection(server_id, force_create=True)
         if connection:
             cursor = connection.cursor()
             command = """DELETE FROM rooms WHERE room_voice_channel_id NOT NULL;"""

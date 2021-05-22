@@ -52,17 +52,20 @@ class Permissions:
                 print(e)
 
 
-def get_db_connection(file_location):
+def get_db_connection(file_location, force_create=False):
     if file_location is not None:
-        if os.path.isfile(file_location) or file_location == Db.database_file_location:
+        if not force_create:
+            if os.path.isfile(file_location) or file_location == Db.database_file_location:
+                return sqlite3.connect(file_location)
+        else:
             return sqlite3.connect(file_location)
     return None
 
 
-def get_server_db_connection(server_id):
+def get_server_db_connection(server_id, force_create=False):
     if Db.database_folder_location is None:
         return None
-    return get_db_connection(f'{Db.database_folder_location}/{server_id}.db')
+    return get_db_connection(f'{Db.database_folder_location}/{server_id}.db', force_create)
 
 
 def create_directory(directory_name):
