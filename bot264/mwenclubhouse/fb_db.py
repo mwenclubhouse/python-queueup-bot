@@ -106,5 +106,5 @@ class FbDb:
     @staticmethod
     def kill():
         if FbDb.snapshot:
-            FbDb.snapshot.close()
+            # FbDb.snapshot.close()
             FbDb.snapshot = None

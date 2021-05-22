@@ -24,7 +24,7 @@ class Permissions:
         client: discord.Client = DiscordWrapper.client
         for _, v in self.rooms.items():
             target_channel: discord.TextChannel = client.get_channel(v)
-            if target_channel not in [None, 0]:
+            if target_channel is not None:
                 try:
                     await target_channel.set_permissions(student, overwrite=None)
                 except discord.Forbidden as e:
@@ -195,7 +195,7 @@ class Db:
         command = f"SELECT bot_channel_id FROM servers WHERE server_id={self.server_id};"
         data = get_sqlite_data(connection, command, close_connection=True)
         self.bot_channel = None
-        if data and len(data) > 0 and data[0][0] != 0:
+        if data and len(data) > 0:
             self.bot_channel = data[0][0]
 
     def get_queues(self):
