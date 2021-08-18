@@ -1,11 +1,10 @@
 import os
-import time
 from typing import List
 
 from firebase_admin.firestore import firestore
 from google.cloud.firestore_v1.watch import DocumentChange
 
-from bot264.discord_wrapper import get_db_connection, Db, get_server_db_connection, create_server_db
+from bot264.discord_wrapper import create_server_db, create_db
 
 
 def get_db():
@@ -31,7 +30,7 @@ class FbDb:
 
     @staticmethod
     def on_set(server_id, attributes):
-        connection = get_db_connection(Db.database_file_location)
+        connection = create_db(force_create=True, return_connection=True)
         if connection:
             cursor = connection.cursor()
             command = f"""DELETE FROM teaching_roles WHERE server_id={server_id};"""

@@ -11,7 +11,7 @@ from bot264.common import create_simple_message
 class Permissions:
 
     def __init__(self, server_id):
-        connection = get_server_db_connection(server_id)
+        [_, connection] = get_server_db_connection(server_id)
         command = f"SELECT * FROM rooms;"
         data = get_sqlite_data(connection, command)
         self.server_id = server_id
@@ -52,20 +52,22 @@ class Permissions:
                 print(e)
 
 
-def get_db_connection(file_location, force_create=False):
+def get_db_connection(file_location, force_create=False) -> [bool, sqlite3.Connection]:
+    is_setup, connection = False, None
     if file_location is not None:
-        if not force_create:
-            if os.path.isfile(file_location) or file_location == Db.database_file_location:
-                return sqlite3.connect(file_location)
-        else:
-            return sqlite3.connect(file_location)
-    return None
+        is_setup = os.path.isfile(file_location)
+        if force_create or is_setup:
+            connection = sqlite3.connect(file_location)
+    return [is_setup, connection]
 
 
-def get_server_db_connection(server_id, force_create=False):
+def get_server_db_connection(server_id, force_create=False) -> [bool, sqlite3.Connection]:
     if Db.database_folder_location is None:
         return None
-    return get_db_connection(f'{Db.database_folder_location}/{server_id}.db', force_create)
+    return get_db_connection(
+        f'{Db.database_folder_location}/{server_id}.db',
+        force_create=force_create
+    )
 
 
 def create_directory(directory_name):
@@ -76,13 +78,12 @@ def create_directory(directory_name):
             return
 
 
-def create_db():
-    Db.database_file_location = os.getenv('DATABASE', None)
-    Db.database_folder_location = os.getenv('DATABASE_DIRECTORY', None)
-    create_directory(create_directory(Db.database_folder_location))
+def create_db(force_create=False, return_connection=False):
+    create_directory(Db.database_folder_location)
 
-    connection = get_db_connection(Db.database_file_location)
-    if connection:
+    [is_setup, connection] = get_db_connection(Db.database_file_location, force_create=force_create)
+
+    if connection and not is_setup:
         cursor = connection.cursor()
         command = """CREATE TABLE IF NOT EXISTS servers (
                             server_id integer PRIMARY KEY, 
@@ -103,14 +104,16 @@ def create_db():
         );"""
         cursor.execute(command)
         cursor.close()
+
+    if connection and not return_connection:
         connection.close()
+        connection = None
+
+    return connection
 
 
 def create_server_db(server_id, force_create=False, return_connection=False):
-    connection = get_server_db_connection(server_id, force_create)
-    is_setup = connection is not None
-    if force_create and connection is None:
-        connection = get_server_db_connection(server_id, force_create=True)
+    [is_setup, connection] = get_server_db_connection(server_id, force_create=force_create)
 
     if connection and not is_setup:
         command = """CREATE TABLE IF NOT EXISTS queues (
@@ -184,7 +187,7 @@ class Db:
         self.server_id = server_id
         self.permission = Permissions(server_id)
 
-        connection = get_db_connection(Db.database_file_location)
+        connection = create_db(force_create=True, return_connection=True)
         command = f"SELECT queue_channel_id FROM queues WHERE server_id={self.server_id};"
         data = get_sqlite_data(connection, command, close_connection=False)
         self.queues = []
@@ -250,7 +253,7 @@ class Db:
 
     @staticmethod
     def is_admin_role(role: discord.role.Role):
-        connection = get_db_connection(Db.database_file_location)
+        connection = create_db(return_connection=True)
         command = f"SELECT teaching_role_id FROM teaching_roles WHERE teaching_role_id={role.id};"
         data = get_sqlite_data(connection, command)
         return data is not None and len(data) > 0
@@ -276,7 +279,7 @@ class Db:
                 await message.add_reaction(i)
 
     def add_name_by_id(self, member: discord.Member):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         if connection:
             display_name = member.display_name
             member_id = member.id
@@ -290,7 +293,7 @@ class Db:
             connection.close()
 
     def get_name_by_id(self, student_id, default_value=None):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         command = f"SELECT * FROM member_names WHERE student_id={student_id}"
         data = get_sqlite_data(connection, command)
         return data[0][1] if len(data) > 0 else default_value
@@ -302,19 +305,19 @@ class Db:
         return False
 
     def get_queue_by_student_id(self, student_id):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         command = "SELECT * FROM queues WHERE author_id={};".format(student_id)
         data = get_sqlite_data(connection, command)
         return data[0] if len(data) > 0 else None
 
     def get_queue_by_message_id(self, message_id):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         command = "SELECT * FROM queues WHERE message_id={};".format(message_id)
         data = get_sqlite_data(connection, command)
         return data[0] if len(data) > 0 else None
 
     def get_student(self, student_id):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         command = "SELECT * FROM students WHERE student_id={};".format(student_id)
         data = get_sqlite_data(connection, command)
         return data[0] if len(data) > 0 else None
@@ -324,7 +327,7 @@ class Db:
         return student is not None
 
     def add_student(self, student_id, message_id):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         if connection:
             command = f"""INSERT INTO queues (author_id, message_id, wait_time)
                       VALUES ({student_id}, {message_id}, {int(time.time())});"""
@@ -335,7 +338,7 @@ class Db:
             connection.close()
 
     def set_start_time(self, student_id, ta_id):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         if connection:
             command = f"""UPDATE queues SET start_time={int(time.time())}, ta_id={ta_id}
                         WHERE author_id={student_id};"""
@@ -346,7 +349,7 @@ class Db:
             connection.close()
 
     def set_wait_time(self, student_id):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         if connection:
             command = f"""UPDATE queues SET wait_time={int(time.time())} 
                         WHERE author_id={student_id};"""
@@ -357,7 +360,7 @@ class Db:
             connection.close()
 
     def remove_student(self, message_id):
-        connection = get_server_db_connection(self.server_id)
+        [_, connection] = get_server_db_connection(self.server_id)
         if connection:
             student = self.get_queue_by_message_id(message_id)
             command = "DELETE FROM queues WHERE message_id={};".format(message_id)
