@@ -5,7 +5,7 @@ from typing import List
 from firebase_admin.firestore import firestore
 from google.cloud.firestore_v1.watch import DocumentChange
 
-from bot264.discord_wrapper import get_db_connection, Db, get_server_db_connection
+from bot264.discord_wrapper import get_db_connection, Db, get_server_db_connection, create_server_db
 
 
 def get_db():
@@ -65,7 +65,7 @@ class FbDb:
             connection.commit()
             connection.close()
 
-        connection = get_server_db_connection(server_id, force_create=True)
+        connection = create_server_db(server_id, force_create=True, return_connection=True)
         if connection:
             cursor = connection.cursor()
             command = """DELETE FROM rooms WHERE room_voice_channel_id NOT NULL;"""
