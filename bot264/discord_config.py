@@ -55,8 +55,9 @@ class GracefulKiller:
     kill_now = False
 
     def __init__(self):
-        client.loop.add_signal_handler(signal.SIGINT, self.exit_gracefully)
-        client.loop.add_signal_handler(signal.SIGTERM, self.exit_gracefully)
+        if os.name != 'nt':
+            client.loop.add_signal_handler(signal.SIGINT, self.exit_gracefully)
+            client.loop.add_signal_handler(signal.SIGTERM, self.exit_gracefully)
 
     def exit_gracefully(self):
         self.kill_now = True

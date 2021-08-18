@@ -106,9 +106,13 @@ def create_db():
         connection.close()
 
 
-def create_server_db(server_id):
-    connection = get_server_db_connection(server_id)
-    if connection:
+def create_server_db(server_id, force_create=False, return_connection=False):
+    connection = get_server_db_connection(server_id, force_create)
+    is_setup = connection is not None
+    if force_create and connection is None:
+        connection = get_server_db_connection(server_id, force_create=True)
+
+    if connection and not is_setup:
         command = """CREATE TABLE IF NOT EXISTS queues (
                             author_id integer PRIMARY KEY, 
                             message_id integer NOT NULL,
@@ -151,9 +155,13 @@ def create_server_db(server_id):
                             room_text_channel_id integer
         );"""
         cursor.execute(command)
-
         cursor.close()
+
+    if return_connection:
+        return connection
+    if connection:
         connection.close()
+    return None
 
 
 def get_sqlite_data(connection, select_command, close_connection=True):
