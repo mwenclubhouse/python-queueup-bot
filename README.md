@@ -1,6 +1,15 @@
 # QueueUp Discord Bot
 Basically QueueUp Live But on Discord
 
+## Beginner Guide to Bot, and How to Set it Up
+There will be a google document explaining step by step what you need to do to use the bot for your class. If you are an instructor,
+and you want to use this program, but you are stuck, please contact wen101@purdue.edu (Purdue Professor / GTA) or mattwen2018@gmail.com (Not Purdue) for further questions. 
+If you are a Purdue GTA / Professor, and you want to add comments, or better instructions to the google document, 
+please email wen101@purdue.edu your gmail account, so I can give you edit
+permissions to the document. 
+
+Link: https://docs.google.com/document/d/1ZUqECq7yM22BrUN_9EPphQ0adUdAQQKfQV-1fZTgwwM/edit?usp=sharing
+
 ## Running it Locally
 You would need to create environment variables in order for the program to work. 
 You need to create a .env file inside your project directory, and assign these variable names. 
