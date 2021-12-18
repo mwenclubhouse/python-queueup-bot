@@ -1,5 +1,10 @@
-# QueueUp Discord Bot
-Basically QueueUp Live But on Discord
+# Python QueueUp Discord Bot
+Basically QueueUp Live But on Discord. 
+
+## Updates
+1. This code with be converted to NodeJS (https://github.com/mwenclubhouse/queueup-bot)
+2. The NodeJS code will be uploaded to npm as a library
+3. It will be integrated into Purdue ECESS Website (https://purdue-ecess.org)
 
 ## Beginner Guide to Bot, and How to Set it Up
 There will be a google document explaining step by step what you need to do to use the bot for your class. If you are an instructor,
