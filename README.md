@@ -1,11 +1,6 @@
 # Python QueueUp Discord Bot
 Basically QueueUp Live But on Discord. 
 
-## Updates
-1. This code with be converted to NodeJS (https://github.com/mwenclubhouse/queueup-bot)
-2. The NodeJS code will be uploaded to npm as a library
-3. It will be integrated into Purdue ECESS Website (https://purdue-ecess.org)
-
 ## Beginner Guide to Bot, and How to Set it Up
 There will be a google document explaining step by step what you need to do to use the bot for your class. If you are an instructor,
 and you want to use this program, but you are stuck, please contact wen101@purdue.edu (Purdue Professor / GTA) or mattwen2018@gmail.com (Not Purdue) for further questions. 
@@ -62,14 +57,13 @@ You run it using the following
 queueup-bot
 ```
 
-## Basic setup [Production]
+## Basic setup [Production] (Changing to Docker Container)
 ```.
 Home Directory
 │
 ├─── databases
 │    └── queueup.db [database for Server]
-│    └── queueup-servers [directory of other sqlite3 databases]
-│        └── example-server-id.db [server's attributes (rooms, queues, history, etc)]
+│    └── example-server-id.db [server's attributes (rooms, queues, history, etc)]
 │
 ├─── environments 
 │    └── queueup.environment [Location to store enivronment variables]
