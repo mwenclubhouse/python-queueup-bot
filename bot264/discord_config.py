@@ -20,8 +20,8 @@ intents = discord.Intents.default()
 intents.members = True
 client: discord.Client = discord.Client(intents=intents)
 DiscordWrapper.client = client
-Db.database_file_location = os.getenv('DATABASE', None)
-Db.database_folder_location = os.getenv('DATABASE_DIRECTORY', None)
+Db.database_file_location = 'bucket/queueup.db'
+Db.database_folder_location = 'bucket'
 
 
 def create_direct_command(content):

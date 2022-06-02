@@ -15,8 +15,6 @@ You would need to create environment variables in order for the program to work.
 You need to create a .env file inside your project directory, and assign these variable names. 
 ```
 TOKEN=[Token from Discord API]
-DATABASE=[Location of the Database]
-DATABASE_DIRECTORY=[Location of Databases to other servers]
 GOOGLE_ACCOUNT_KEY_FILE=[Location of Google File to Sync with Google Drive (Optional)]
 GOOGLE_APPLICATION_CREDENTIALS=[Connection with Google Cloud (Optional)]
 REFERENCE=[Server Name (AWS EC2 Name) for Google Cloud Database (Optional)]
@@ -25,9 +23,9 @@ For rooms, each voice channel will be assigned a text channel. As a result, if t
 
 You can store the environment variables inside a .env file. In production, it doesn't use load_dotenv, so do not create .env for production. 
 
-To run it, you can run bin/gueueup-bot directly. 
+To run it, you can run main.py directly. 
 ```bash
-python3 bin/queueup-bot
+python3 main.py
 ```
 Please note that your working directory must be the root of the file, so it can access the .env file. I would recommend using Pycharm for this project. 
 
@@ -46,33 +44,14 @@ Please note that your working directory must be the root of the file, so it can 
 Also enable Privileged Gateway Intents.
 - This gives the bot more control over getting members inside a server.
 
-## Installation [Production]
-You can install it using the following command
-```bash
-python3 setup.py install
-```
-
-You run it using the following
-```bash
-queueup-bot
-```
-
-## Basic setup [Production] (Changing to Docker Container)
+## Basic setup [Production] (Changing to Docker Container -> Work in Progress)
 ```.
 Home Directory
 │
-├─── databases
+├─── bucket 
 │    └── queueup.db [database for Server]
 │    └── example-server-id.db [server's attributes (rooms, queues, history, etc)]
 │
-├─── environments 
-│    └── queueup.environment [Location to store enivronment variables]
-│
-├─── scripts 
-│    └── queueup.sh [Used only for CI/CD. It is optional]
+└─── environments 
+     └── queueup.environment [Location to store enivronment variables]
 ```
-
-## Running on AWS EC2 Instance
-There is a script called ec2.sh, which can run on an EC2 instance if you decide to run the bot on an EC2 Instance. 
-The Bot is currently being run by the cheapest EC2 Instance on AWS. 
-For scalability, I am planning to use AWS Elastic Beanstalk.
