@@ -129,8 +129,8 @@ dmypy.json
 .pyre/
 
 .idea/
+.env
 Pipfile.lock
-queueup.db
-test_queue_directory
+bucket
 discord_database_setup.py
 key
