@@ -40,8 +40,8 @@ jobs:
           sudo docker build -t python-queueup-bot .; \
           sudo docker stop python-queueup-bot ; \
           sudo docker container rm python-queueup-bot ; \
-          sudo docker run -d --env-file /home/mwenclubhouse/environments/mwenclubhouse.env.list \
-            -v /home/mwenclubhouse/mwenclubhouse:/usr/src/bucket \
+          sudo docker run -d --env-file /home/mwenclubhouse/environments/queueup.env \
+            -v /home/mwenclubhouse/bucket/queueup:/app/bucket \
             --name python-queueup-bot \
             --restart always \
             -p 8800:8000 \
