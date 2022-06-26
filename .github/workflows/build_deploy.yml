@@ -1,0 +1,51 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Create, Publish Docker Image. Deploy to GCP.
+
+on:
+  push:
+    branches: ['main']
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Auth with GCP with WIF
+        uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: 'projects/284911242659/locations/global/workloadIdentityPools/gh-to-vm-pool/providers/gh-to-vm-provider'
+          service_account: ' gh-actions-to-vm@mwenclubhouse.iam.gserviceaccount.com'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+
+      - name: 'Use GCP CLI'
+        run: |
+          gcloud compute ssh mwenclubhouse --zone us-central1-a --command "\
+          sudo docker system prune -f -a ; \
+          sudo rm -rf python-queueup-bot; \
+          sudo git clone git@github.com:mwenclubhouse/python-queueup-bot.git; \
+          cd python-queueup-bot; \
+          sudo docker build -t python-queueup-bot .; \
+          sudo docker stop python-queueup-bot ; \
+          sudo docker container rm python-queueup-bot ; \
+          sudo docker run -d --env-file /home/mwenclubhouse/environments/mwenclubhouse.env.list \
+            -v /home/mwenclubhouse/mwenclubhouse:/usr/src/bucket \
+            --name python-queueup-bot \
+            --restart always \
+            -p 8800:8000 \
+            python-queueup-bot; \
+          cd ../; \
+          sudo rm -rf python-queueup-bot;"
+          gcloud compute os-login ssh-keys remove --key-file=/home/runner/.ssh/google_compute_engine.pub
