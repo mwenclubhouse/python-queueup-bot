@@ -4,7 +4,7 @@ FROM python:3.8-slim-buster
 WORKDIR /app
 
 RUN apt update
-RUN apt upgrade
+RUN apt upgrade -y
 RUN apt install gcc -y
 COPY requirements.txt requirements.txt
 RUN /usr/local/bin/python -m pip install --upgrade pip
