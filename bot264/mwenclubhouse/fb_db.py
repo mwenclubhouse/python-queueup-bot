@@ -15,7 +15,10 @@ def get_db():
 
 
 def get_server_db():
-    return firestore.Client().collection(u'discord').document(u'queueup-bot').collection('servers')
+    try:
+        return firestore.Client().collection(u'discord').document(u'queueup-bot').collection('servers')
+    except:
+        return None
 
 
 class FbDb:
