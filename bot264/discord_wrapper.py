@@ -232,11 +232,9 @@ class Db:
         if None in [waiting_room, user_id.voice]:
             return False
         await user_id.move_to(dest_voice_channel)
-        await self.permission.set_access_to_text_channel(user_id, ta_voice_state, True)
         return True
 
     async def move_user_to_waiting_room(self, user_id, ta_voice_state):
-        await self.permission.set_access_to_text_channel(user_id, ta_voice_state, False)
         waiting_room: discord.channel.VoiceChannel = self.get_waiting_room()
         if None in [waiting_room, user_id.voice]:
             return False
@@ -244,7 +242,6 @@ class Db:
         return True
 
     async def disconnect_user(self, user_id, ta_voice_state):
-        await self.permission.set_access_to_text_channel(user_id, ta_voice_state, False)
         if user_id.voice is not None:
             await user_id.move_to(None)
 

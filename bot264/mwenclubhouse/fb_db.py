@@ -72,6 +72,8 @@ class FbDb:
             cursor = connection.cursor()
             command = """DELETE FROM rooms WHERE room_voice_channel_id NOT NULL;"""
             cursor.execute(command)
+
+            # The room_text_channel_id is depreciated 
             if 'rooms' in attributes:
                 for k, v in attributes['rooms'].items():
                     v = "NULL" if v is None else v
@@ -89,24 +91,3 @@ class FbDb:
         if response:
             return response.to_dict()
         return None
-
-    @staticmethod
-    def on_snapshot(document_snapshot, changes: List[DocumentChange], read_time):
-        for c in changes:
-            if c.type.name == 'ADDED':
-                to_dict = c.document.to_dict()
-                server_id = to_dict['server']
-                FbDb.on_set(server_id, FbDb.get_server(server_id))
-                FbDb.db.document(c.document.id).delete()
-
-    @staticmethod
-    def listen():
-        if not FbDb.db:
-            return
-        FbDb.snapshot = FbDb.db.on_snapshot(FbDb.on_snapshot)
-
-    @staticmethod
-    def kill():
-        if FbDb.snapshot:
-            # FbDb.snapshot.close()
-            FbDb.snapshot = None

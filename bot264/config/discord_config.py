@@ -1,16 +1,12 @@
-import asyncio
 import os
-import signal
-import sys
-
 import discord
-
+from firebase_admin import initialize_app
 from bot264.discord_wrapper import DiscordWrapper, Db, create_db
 from bot264.killer import GracefulKiller
 from bot264.mwenclubhouse import FbDb
-from .commands import UserCommand, LockQueueCommand, UnLockQueueCommand
-from .common.user_response import UserResponse
-from .common.utils import iterate_commands, create_simple_message
+from ..commands import UserCommand, LockQueueCommand, UnLockQueueCommand
+from ..common.user_response import UserResponse
+from ..common.utils import iterate_commands, create_simple_message
 
 if os.getenv("PRODUCTION", None) != "1":
     from dotenv import load_dotenv
@@ -55,11 +51,12 @@ async def handle_bot_commands(message, response: UserResponse):
         await run(obj, message, response)
 
 def run_discord(server):
+    initialize_app()
+
     @client.event
     async def on_ready():
         create_db()
         FbDb.init()
-        FbDb.listen()
         killer.on_init()
         killer.start_flask(server)
 
