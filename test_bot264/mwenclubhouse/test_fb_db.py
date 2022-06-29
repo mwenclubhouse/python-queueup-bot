@@ -1,4 +1,4 @@
-from bot264.mwenclubhouse import FbDb
+from bot264.mwenclubhouse import Database
 from bot264.discord_wrapper import Db
 
 

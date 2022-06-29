@@ -21,15 +21,21 @@ def get_server_db():
         return None
 
 
-class FbDb:
+class Database:
     db: firestore.CollectionReference = None
     servers: firestore.CollectionReference = None
     snapshot: firestore.Watch = None
 
     @staticmethod
     def init():
-        FbDb.db = get_db()
-        FbDb.servers = get_server_db()
+        Database.db = get_db()
+        Database.servers = get_server_db()
+    
+    @staticmethod
+    async def can_access(user):
+        print(user)
+        return -1
+
 
     @staticmethod
     def on_set(server_id, attributes):
@@ -55,14 +61,21 @@ class FbDb:
                     VALUES({k}, 0, {server_id}); 
                     """
                     cursor.execute(command)
+            
+            if 'bot' in attributes:
+                bot_channel_id = attributes['bot']
+                command = f"""
+                REPLACE INTO servers (server_id, bot_channel_id) VALUES({server_id}, {bot_channel_id});
+                """
+                cursor.execute(command)
 
-            bot_channel_id = attributes['bot'] if 'bot' in attributes else "NULL"
-            waiting_room = attributes['waiting'] if 'waiting' in attributes else "NULL"
-            command = f"""
-            REPLACE INTO servers (server_id, bot_channel_id, waiting_room_id) 
-            VALUES({server_id}, {bot_channel_id}, {waiting_room}); 
-            """
-            cursor.execute(command)
+            if 'waiting' in attributes:
+                waiting_room = attributes['waiting'] 
+                command = f"""
+                REPLACE INTO servers (server_id,  waiting_room_id) 
+                VALUES({server_id}, {waiting_room}); 
+                """
+                cursor.execute(command)
             cursor.close()
             connection.commit()
             connection.close()
@@ -84,10 +97,3 @@ class FbDb:
             connection.commit()
             cursor.close()
             connection.close()
-
-    @staticmethod
-    def get_server(server_id):
-        response = FbDb.servers.document(server_id).get()
-        if response:
-            return response.to_dict()
-        return None

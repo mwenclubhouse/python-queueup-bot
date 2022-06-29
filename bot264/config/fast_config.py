@@ -1,21 +1,10 @@
 from flask import Flask, Request, request 
 from flask_cors import CORS, cross_origin
 from firebase_admin.auth import verify_id_token
+
+from bot264.mwenclubhouse.fb_db import Database
 app = Flask(__name__)
 CORS(app, support_credentials=True)
-
-# export async function decodeIDToken(req: Request): Promise<(UserRecord | undefined)> {
-#     if (req.headers?.authorization?.startsWith('Bearer ')) {
-#         const idToken = req.headers.authorization.split('Bearer ')[1];
-#         try {
-#             const decodedToken: DecodedIdToken = await getAuth().verifyIdToken(idToken);
-#             return await getAuth().getUser(decodedToken.uid);
-#         } catch (err) {
-#             console.log(err);
-#         }
-#     }
-#     return undefined;
-# }
 
 async def check_firebase_auth(r: Request):
     authorization = request.headers.get('authorization')
@@ -39,12 +28,33 @@ async def get_servers():
     user = await check_firebase_auth(request)
     if not user:
         return 'not authenticated', 400
+    access = await Database.can_access(user)
+    if access < 0:
+        return 'not allowed to access server', 400
     return {
         "servers": [
             {
                 "example": "example 1"
             }
         ]
+    }
+
+@app.get("/servers/<server_id>")
+async def get_server_properties(server_id):
+    print(server_id)
+    user = await check_firebase_auth(request)
+    if not user:
+        return 'not authenticated', 400
+    access = await Database.can_access(user)
+    if access < 0:
+        return 'not allowed to access server', 400
+    return {
+        "queueup": {
+        },
+        "discord": {
+            "text_channels": [],
+            "voice_channels": []
+        }
     }
 
 def flask_app():

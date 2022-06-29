@@ -1,1 +1,1 @@
-from .fb_db import FbDb
+from .fb_db import Database

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from bot264.discord_wrapper import Db
-from bot264.mwenclubhouse import FbDb
+from bot264.mwenclubhouse import Database
 
 Db.database_file_location = '../queueup.db'
 Db.database_folder_location = '../test_queue_directory'
@@ -20,7 +20,7 @@ for i in [uta_role_id, gta_role_id, professor_role_id]:
     if i is not None:
         ta_roles[i] = ''
 
-FbDb.on_set(server_id, {
+Database.on_set(server_id, {
     'queues': {
         queue_channel_id: history_channel_id
     },
