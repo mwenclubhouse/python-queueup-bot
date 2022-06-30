@@ -1,8 +1,8 @@
 from flask import Flask, Request, request 
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from firebase_admin.auth import verify_id_token
 
-from bot264.mwenclubhouse.fb_db import Database
+from bot264.database.fb_db import Database
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 
@@ -28,9 +28,10 @@ async def get_servers():
     user = await check_firebase_auth(request)
     if not user:
         return 'not authenticated', 400
-    access = await Database.can_access(user)
-    if access < 0:
-        return 'not allowed to access server', 400
+    servers = await Database.get_servers(user)
+    print(servers)
+    for server in servers:
+        pass
     return {
         "servers": [
             {

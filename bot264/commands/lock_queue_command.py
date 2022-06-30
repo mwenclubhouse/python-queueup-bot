@@ -1,11 +1,9 @@
-import discord
-
 from .command import UserCommand
-from bot264.discord_wrapper import Db
+from bot264.database import ServerDb
 
 
 async def set_queue(message, state):
-    db = Db(message.guild.id)
+    db = ServerDb(message.guild.id)
     queues = db.get_queues()
     for q in queues:
         for i in message.author.roles:

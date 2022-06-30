@@ -1,25 +1,28 @@
 import os
 import discord
 from firebase_admin import initialize_app
-from bot264.discord_wrapper import DiscordWrapper, Db, create_db
+from bot264.discord_wrapper import DiscordWrapper
+from bot264.env import Env
 from bot264.killer import GracefulKiller
-from bot264.mwenclubhouse import Database
-from ..commands import UserCommand, LockQueueCommand, UnLockQueueCommand
-from ..common.user_response import UserResponse
-from ..common.utils import iterate_commands, create_simple_message
+from bot264.database import Database, ServerDb, create_db
+from bot264.commands import UserCommand, LockQueueCommand, UnLockQueueCommand
+from bot264.common.user_response import UserResponse
+from bot264.common.utils import iterate_commands, create_simple_message
 
 if os.getenv("PRODUCTION", None) != "1":
     from dotenv import load_dotenv
-
     load_dotenv()
+
+# Setting Up Env
+Env.token = os.getenv('TOKEN')
+Env.database_file_location = 'bucket/queueup.db'
+Env.database_folder_location = 'bucket'
 
 intents = discord.Intents.default()
 intents.members = True
 client: discord.Client = discord.Client(intents=intents)
 killer: GracefulKiller = GracefulKiller(client)
 DiscordWrapper.client = client
-Db.database_file_location = 'bucket/queueup.db'
-Db.database_folder_location = 'bucket'
 
 
 def create_direct_command(content):
@@ -62,7 +65,7 @@ def run_discord(server):
 
     @client.event
     async def on_raw_reaction_add(payload: discord.raw_models.RawReactionActionEvent):
-        db = Db(payload.guild_id)
+        db = ServerDb(payload.guild_id)
         if payload.user_id == client.user.id:
             return
 
@@ -86,7 +89,7 @@ def run_discord(server):
     async def on_message(message: discord.message.Message):
         if message.guild is None:
             return
-        db = Db(message.guild.id)
+        db = ServerDb(message.guild.id)
 
         response: UserResponse = UserResponse()
         student_member: discord.Member = message.author
@@ -123,14 +126,14 @@ def run_discord(server):
 
     @client.event
     async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
-        db = Db(payload.guild_id)
+        db = ServerDb(payload.guild_id)
         if payload.channel_id in db.queues:
             db.remove_student(payload.message_id)
 
 
     @client.event
     async def on_voice_state_update(member: discord.Member, before, after):
-        db = Db(member.guild.id)
+        db = ServerDb(member.guild.id)
         is_admin = db.is_admin(member)
         if is_admin:
             return
@@ -143,5 +146,5 @@ def run_discord(server):
                 message.color = 15158332
                 await dm_channel.send(embed=message)
                 await member.move_to(None, reason="Need a Request Help First")
-
-    client.run(os.getenv('TOKEN'))
+    
+    client.run(Env.token)

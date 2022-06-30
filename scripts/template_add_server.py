@@ -1,9 +1,10 @@
 #!/usr/bin/python3
-from bot264.discord_wrapper import Db
-from bot264.mwenclubhouse import Database
+from bot264.database import Database, ServerDb
+from bot264.env import Env
 
-Db.database_file_location = '../queueup.db'
-Db.database_folder_location = '../test_queue_directory'
+Env.database_file_location = '../queueup.db'
+Env.database_folder_location = '../test_queue_directory'
+
 server_id = 0
 bot_channel_id = 0
 waiting_room = 0
@@ -20,7 +21,7 @@ for i in [uta_role_id, gta_role_id, professor_role_id]:
     if i is not None:
         ta_roles[i] = ''
 
-Database.on_set(server_id, {
+Database.update_server(server_id, {
     'queues': {
         queue_channel_id: history_channel_id
     },
