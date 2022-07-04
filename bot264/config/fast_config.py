@@ -28,16 +28,13 @@ async def get_servers():
     user = await check_firebase_auth(request)
     if not user:
         return 'not authenticated', 400
-    servers = await Database.get_servers(user)
-    print(servers)
-    for server in servers:
-        pass
+    servers = []
+    server_ids = await Database.get_servers(user)
+    for server_id in server_ids:
+        server = await Database.get_server(server_id)
+        servers.append(server)
     return {
-        "servers": [
-            {
-                "example": "example 1"
-            }
-        ]
+        "servers": servers
     }
 
 @app.get("/servers/<server_id>")
@@ -46,7 +43,7 @@ async def get_server_properties(server_id):
     user = await check_firebase_auth(request)
     if not user:
         return 'not authenticated', 400
-    access = await Database.can_access(user)
+    access = await Database.can_access(user, server_id)
     if access < 0:
         return 'not allowed to access server', 400
     return {

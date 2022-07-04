@@ -138,8 +138,8 @@ def run_discord(server):
         if is_admin:
             return
         if after.channel is None:
-            await db.permission.remove_permissions_from_all_rooms(member)
-        elif after.channel.id == db.waiting_room:
+            return
+        if after.channel.id == db.waiting_room:
             if not db.is_student_in_queue(member.id):
                 dm_channel = await member.create_dm()
                 message = create_simple_message("Error", "Make sure to type your request inside THE QUEUE!!")

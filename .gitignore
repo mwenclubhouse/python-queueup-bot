@@ -134,3 +134,4 @@ Pipfile.lock
 bucket
 discord_database_setup.py
 key
+.vscode

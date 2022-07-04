@@ -1,13 +1,11 @@
 from multiprocessing.dummy import Array
 import time
-from discord import Forbidden
 import discord
 from typing import Any
 from firebase_admin.firestore import firestore
-from bot264.common.utils import create_simple_message
+from bot264.database.discord import DiscordDb
 from bot264.discord_wrapper import DiscordWrapper
 from .utils import get_db, get_server_db_connection, create_db, get_sqlite_data, create_server_db
-from bot264.common.permissions import Permissions
 
 
 class Database:
@@ -18,32 +16,87 @@ class Database:
         Database.db = get_db()
     
     @staticmethod
-    async def can_access(user):
-        print(user)
+    async def get_queueup(user):
+        if not (Database.db):
+            return None
+        user_id = user['user_id']
+        if not (user_id):
+            return None
+        user_data = Database.db.document(user_id).get().to_dict()
+        if not ('queueup' in user_data and 'servers' in user_data['queueup']):
+            return None
+        return user_data['queueup']
+    
+    @staticmethod
+    async def can_access(user, server_id):
+        data = await Database.get_server()
+        if data is None:
+            return -1
+        discord_id = data['id']
+        member_roles = DiscordDb.get_roles()
+        connection = create_db(force_create=True, return_connection=True)
+        teaching_roles = Database.get_teaching_roles(server_id, connection)
         return -1
     
     @staticmethod
     async def get_servers(user) -> Array:
-        if not (Database.db):
+        data = await Database.get_queueup()
+        if data is None:
             return []
-        user_id = user['user_id']
-        if not (user_id):
-            return []
-        user_data = Database.db.document(user_id).get().to_dict()
-        if not ('queueup' in user_data and 'servers' in user_data['queueup']):
-            return []
-        return user_data['queueup']['servers'] or []
+        return data['servers'] or []
+    
+    @staticmethod
+    async def get_teaching_roles(server_id, connection, close_connection=True):
+        # Getting all the Roles Related to that Server
+        response = {}
+        command = f"""SELECT * FROM teaching_roles WHERE server_id={server_id}"""
+        data = get_sqlite_data(connection, command, close_connection)
+        for d in data:
+            response[d[0]] = {
+                'permissions': d[1]
+            }
+        return response
+
     
     @staticmethod
     async def get_server(server_id) -> Any:
-        [_, connection] = get_server_db_connection(server_id)
         connection = create_db(force_create=True, return_connection=True)
         if not connection:
             return None
-        command = f"""SELECT * FROM teaching_roles WHERE server_id={server_id}"""
-        data = get_sqlite_data(connection, command)
-        print(data)
-        
+        response = {
+            'teaching_roles': {},
+            'waiting_room': None,
+            'bot_command': None,
+            'queues': []
+        }
+        response['teaching_roles'] = await Database.get_teaching_roles(server_id, connection, close_connection=False)
+
+        # Getting Waiting Room and Bot Channel Command
+        command = f"""SELECT * FROM servers WHERE server_id={server_id}"""
+        data = get_sqlite_data(connection, command, close_connection=False)
+        if len(data) > 0:
+            data = data[0]
+            bot_command: discord.TextChannel = DiscordDb.get_channel(data[1])
+            waiting_room: discord.VoiceChannel = DiscordDb.get_channel(data[2])
+            response['bot_command'] = {
+                'id': data[1],
+                'name': bot_command.name,
+            }
+            response['waiting_room'] = {
+                'id': data[2],
+                'name': waiting_room.name
+            }
+
+        # Getting all the Queues (No History Channel Even Though That is an Option)
+        command = f"""SELECT * FROM queues WHERE server_id={server_id}"""
+        data = get_sqlite_data(connection, command, close_connection=True)
+        for d in data:
+            queue: discord.TextChannel = DiscordDb.get_channel(d[0])
+            response['queues'].append({
+                'id': d[0],
+                'name': queue.name,
+            })
+        return response
 
     @staticmethod
     def update_server(server_id, attributes):
@@ -111,7 +164,6 @@ class ServerDb:
 
     def __init__(self, server_id):
         self.server_id = server_id
-        self.permission = Permissions(server_id)
 
         connection = create_db(force_create=True, return_connection=True)
         command = f"SELECT queue_channel_id FROM queues WHERE server_id={self.server_id};"
