@@ -1,8 +1,9 @@
+import json
 from flask import Flask, Request, request 
 from flask_cors import CORS
 from firebase_admin.auth import verify_id_token
-from bot264.database import discord
 from bot264.database.discord import DiscordDb
+import discord
 
 from bot264.database.fb_db import Database
 app = Flask(__name__)
@@ -41,7 +42,6 @@ async def get_servers():
 
 @app.get("/servers/<server_id>")
 async def get_server_properties(server_id):
-    print(server_id)
     user = await check_firebase_auth(request)
     if not user:
         return 'not authenticated', 400
@@ -51,8 +51,7 @@ async def get_server_properties(server_id):
     response = {
         "queueup": await Database.get_server(server_id),
         "discord": {
-            "text_channels": [],
-            "voice_channels": [],
+            "channels": {},
             "roles": [],
             "name": "",
             "owner": {
@@ -61,17 +60,36 @@ async def get_server_properties(server_id):
             }
         }
     }
+
+    def add_category(category_id):
+        if category_id not in response["discord"]["channels"]:
+            response["discord"]["channels"][category_id] = {
+                "text": [],
+                "vc": [],
+                "name": DiscordDb.get_channel(category_id).name
+            }
+
     server = DiscordDb.get_server(server_id)
     for text_channel in server.channels:
-        response["discord"]["text_channels"].append({
-            "id": text_channel.id,
-            "name": text_channel.name,
-        })
+        if type(text_channel) == discord.channel.TextChannel:
+            category = text_channel.category_id
+            add_category(category)
+            response["discord"]["channels"][category]["text"].append({
+                "id": text_channel.id,
+                "position": text_channel.position,
+                "name": text_channel.name
+            })
+            
     for vc_channel in server.voice_channels:
-        response["discord"]["voice_channels"].append({
-            "id": vc_channel.id,
-            "name": vc_channel.name,
-        })
+        if type(vc_channel) == discord.channel.VoiceChannel:
+            category = vc_channel.category_id
+            add_category(category)
+            response["discord"]["channels"][category]["vc"].append({
+                "id": vc_channel.id,
+                "position": vc_channel.position,
+                "name": vc_channel.name
+            })
+
     for role in server.roles:
         response["discord"]["roles"].append({
             "id": role.id,
@@ -81,6 +99,18 @@ async def get_server_properties(server_id):
     response["discord"]["owner"]["name"] = server.owner.name
     response["discord"]["owner"]["id"] = server.owner_id
     return response
+
+@app.post("/servers/<server_id>")
+async def update_server_properties(server_id):
+    user = await check_firebase_auth(request)
+    if not user:
+        return 'not authenticated', 400
+    access = await Database.can_access(user, server_id)
+    if (access & 1) == 0:
+        return 'not allowed to access server', 400
+    response = json.loads(request.data)
+    Database.update_server(server_id, response)
+    return await get_server_properties(server_id)
 
 def flask_app():
     return app

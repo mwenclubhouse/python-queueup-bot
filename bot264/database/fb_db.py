@@ -31,18 +31,21 @@ class Database:
     async def can_access(user, server_id):
         user_data = await Database.get_queueup(user)
         if user_data is None:
-            return -1
+            return 0
+
+        guild = DiscordDb.get_server(server_id)
         discord_id = user_data['id']
-        member_roles = DiscordDb.get_user_roles(discord_id, server_id)
-        
+        if guild.owner_id == discord_id:
+            return -1
+
         server = await Database.get_server(server_id)
         if server is None:
-            return -1
+            return 0
         connection = create_db(force_create=True, return_connection=True)
         teaching_roles = Database.get_teaching_roles(server_id, connection)
 
-        # Give the most permissions
         perm = 0
+        member_roles = DiscordDb.get_user_roles(discord_id, server_id)
         for member_role in member_roles:
             role_id = member_role.id
             if role_id in teaching_roles:
@@ -126,28 +129,22 @@ class Database:
                     VALUES({k}, {v}, {server_id})"""
                     cursor.execute(command)
 
-            if 'ta_roles' in attributes:
-                for k, _ in attributes['ta_roles'].items():
+            if 'teaching_roles' in attributes:
+                for k, v in attributes['teaching_roles'].items():
                     command = f"""
                     REPLACE INTO teaching_roles (teaching_role_id, assigned_level, server_id) 
-                    VALUES({k}, 0, {server_id}); 
+                    VALUES({k}, {v}, {server_id}); 
                     """
                     cursor.execute(command)
             
-            if 'bot' in attributes:
-                bot_channel_id = attributes['bot']
+            if 'bot_command' in attributes and 'waiting_room' in attributes:
+                bot_channel_id = attributes['bot_command']
+                waiting_room = attributes['waiting_room'] 
                 command = f"""
-                REPLACE INTO servers (server_id, bot_channel_id) VALUES({server_id}, {bot_channel_id});
+                REPLACE INTO servers (server_id, bot_channel_id, waiting_room_id) VALUES({server_id}, {bot_channel_id}, {waiting_room});
                 """
                 cursor.execute(command)
 
-            if 'waiting' in attributes:
-                waiting_room = attributes['waiting'] 
-                command = f"""
-                REPLACE INTO servers (server_id,  waiting_room_id) 
-                VALUES({server_id}, {waiting_room}); 
-                """
-                cursor.execute(command)
             cursor.close()
             connection.commit()
             connection.close()

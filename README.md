@@ -1,33 +1,22 @@
 # Python QueueUp Discord Bot
 Basically QueueUp Live But on Discord. 
 
-## Beginner Guide to Bot, and How to Set it Up
-There will be a google document explaining step by step what you need to do to use the bot for your class. If you are an instructor,
-and you want to use this program, but you are stuck, please contact wen101@purdue.edu (Purdue Professor / GTA) or mattwen2018@gmail.com (Not Purdue) for further questions. 
-If you are a Purdue GTA / Professor, and you want to add comments, or better instructions to the google document, 
-please email wen101@purdue.edu your gmail account, so I can give you edit
-permissions to the document. 
+## Updates to Python Program
+We killed the project for a potential NodeJS Alternative. However, that would of been more work than 
+to salvage what is currently written in Python. Therefore, this Python Program will live, and it will 
+be connected to https://www.mwenclubhouse.com/queueup very soon. At the meantime, this will continued
+to be in development until the website version of the website is up and running.
 
-Link: https://docs.google.com/document/d/1ZUqECq7yM22BrUN_9EPphQ0adUdAQQKfQV-1fZTgwwM/edit?usp=sharing
+## Creating an Account and Giving Suggestions
+To create an account, please contact mattwen2018@gmail.com to try out the server. To keep in 
+compliance with FERPA, we will also be releasing a docker container of this program to run 
+on your school server soon (you will also need a free tier Google Firebase Account as well). However, you are more than welcome to use the website, which will be released soon.
 
-## Running it Locally
-You would need to create environment variables in order for the program to work. 
-You need to create a .env file inside your project directory, and assign these variable names. 
-```
-TOKEN=[Token from Discord API]
-GOOGLE_ACCOUNT_KEY_FILE=[Location of Google File to Sync with Google Drive (Optional)]
-GOOGLE_APPLICATION_CREDENTIALS=[Connection with Google Cloud (Optional)]
-REFERENCE=[Server Name (AWS EC2 Name) for Google Cloud Database (Optional)]
-```
-For rooms, each voice channel will be assigned a text channel. As a result, if there is a video failure, the TA and student can still connect via text channel.
-
-You can store the environment variables inside a .env file. In production, it doesn't use load_dotenv, so do not create .env for production. 
-
-To run it, you can run main.py directly. 
-```bash
-python3 main.py
-```
-Please note that your working directory must be the root of the file, so it can access the .env file. I would recommend using Pycharm for this project. 
+## New Features 
+1. Google Document Support will be added into the project at scale.
+2. Commands inside the voice channel to clear any existing text for the TA
+3. Website with Zoom Support if user doesn't want to install discord
+4. Website to control bot
 
 ## Permissions to Set for the bot
 1. Move Members

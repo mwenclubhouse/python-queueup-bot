@@ -11,6 +11,7 @@ firebase-admin = "*"
 flask-cors = "*"
 aioflask = "*"
 flask = {extras = ["async"], version = "*"}
+pydantic = "*"
 
 [dev-packages]
 
