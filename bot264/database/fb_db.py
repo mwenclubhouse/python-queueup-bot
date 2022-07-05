@@ -29,24 +29,36 @@ class Database:
     
     @staticmethod
     async def can_access(user, server_id):
-        data = await Database.get_server()
-        if data is None:
+        user_data = await Database.get_queueup(user)
+        if user_data is None:
             return -1
-        discord_id = data['id']
-        member_roles = DiscordDb.get_roles()
+        discord_id = user_data['id']
+        member_roles = DiscordDb.get_user_roles(discord_id, server_id)
+        
+        server = await Database.get_server(server_id)
+        if server is None:
+            return -1
         connection = create_db(force_create=True, return_connection=True)
         teaching_roles = Database.get_teaching_roles(server_id, connection)
-        return -1
+
+        # Give the most permissions
+        perm = 0
+        for member_role in member_roles:
+            role_id = member_role.id
+            if role_id in teaching_roles:
+                perm |= teaching_roles[role_id]['permissions']
+            
+        return perm
     
     @staticmethod
     async def get_servers(user) -> Array:
-        data = await Database.get_queueup()
+        data = await Database.get_queueup(user)
         if data is None:
             return []
         return data['servers'] or []
     
     @staticmethod
-    async def get_teaching_roles(server_id, connection, close_connection=True):
+    def get_teaching_roles(server_id, connection, close_connection=True):
         # Getting all the Roles Related to that Server
         response = {}
         command = f"""SELECT * FROM teaching_roles WHERE server_id={server_id}"""
@@ -67,9 +79,9 @@ class Database:
             'teaching_roles': {},
             'waiting_room': None,
             'bot_command': None,
-            'queues': []
+            'queues': {}
         }
-        response['teaching_roles'] = await Database.get_teaching_roles(server_id, connection, close_connection=False)
+        response['teaching_roles'] = Database.get_teaching_roles(server_id, connection, close_connection=False)
 
         # Getting Waiting Room and Bot Channel Command
         command = f"""SELECT * FROM servers WHERE server_id={server_id}"""
@@ -92,10 +104,9 @@ class Database:
         data = get_sqlite_data(connection, command, close_connection=True)
         for d in data:
             queue: discord.TextChannel = DiscordDb.get_channel(d[0])
-            response['queues'].append({
-                'id': d[0],
+            response['queues'][d[0]] = {
                 'name': queue.name,
-            })
+            }
         return response
 
     @staticmethod

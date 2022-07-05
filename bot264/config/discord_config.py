@@ -31,7 +31,7 @@ def create_direct_command(content):
 
 def create_bot_command(content):
     return iterate_commands(content, [
-        ('$lock', LockQueueCommand), ('$unlock', UnLockQueueCommand)
+        ('!lock', LockQueueCommand), ('!unlock', UnLockQueueCommand)
     ])
 
 
