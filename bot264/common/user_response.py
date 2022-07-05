@@ -1,5 +1,5 @@
 import discord
-from bot264.discord_wrapper import Db
+from bot264.database import ServerDb
 
 
 async def clear_emojis(message):
@@ -25,7 +25,7 @@ class UserResponse:
             return None
         return self.response[-1]
 
-    async def run_emoji_command(self, db: Db, emoji, message: discord.message.Message,
+    async def run_emoji_command(self, db: ServerDb, emoji, message: discord.message.Message,
                                 ta_member: discord.Member, is_admin=False):
         ta_voice_state: discord.member.VoiceState = ta_member.voice
         if emoji == "❌":
@@ -56,7 +56,6 @@ class UserResponse:
                     if db.is_ta_helping_student(message.author.id, ta_member.id):
                         is_successful = True
                         await db.disconnect_user(message.author, ta_voice_state)
-                        await db.add_history(message)
                         await message.delete()
                 return is_successful
             else:

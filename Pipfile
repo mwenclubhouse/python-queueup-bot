@@ -8,7 +8,10 @@ discord = "*"
 python-dotenv = "*"
 gspread = "*"
 firebase-admin = "*"
-flask = "*"
+flask-cors = "*"
+aioflask = "*"
+flask = {extras = ["async"], version = "*"}
+pydantic = "*"
 
 [dev-packages]
 
